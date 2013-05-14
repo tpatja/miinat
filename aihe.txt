@@ -1,0 +1,21 @@
+Ohjelmoinnin harjoitustyö
+
+Aihe: miinaharava-peli
+
+Toteutetaan miinaharava-peli javalla, jossa on graafinen käyttöliittymä. Peli on yksinkertainen miinaharava peli, jossa on dynaamisen kokoinen ruudukko ja miinojen määrä, sekä high score seuranta.
+
+Käyttäjä: Pelaaja
+
+Pelaajan toiminnot:
+* uusi peli
+ * alustaa asetuksien mukaisen kokoisen ruudukon peliä varten
+* ruudun "avaaminen"
+ * jos ruudussa on miina, peli loppuu. Muuten avataan kaikki ympäröivät vapaat ruudut.
+* pelin vaikeusasteen asettaminen
+ * pelin asetuksista voi valita kolmesta eri vaikeuasteesta:
+  * helppo: 9x9 ruudukko, 10 miinaa
+  * keskitaso: 16x16 ruudukko, 40 miinaa
+  * vaikea: 30x16, 99 miinaa
+* high score seuranta
+ * jos pelaaja saa koko ruudukon miinat paikannettua, tallennetaan pelaajan nimi, ruudukon koko, pvm ja ratkomiseen käytetty aika
+ * valikosta voi aukaista high score dialogin, josta näkee listan max 10:stä parhaasta tuloksesta
