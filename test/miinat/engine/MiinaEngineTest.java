@@ -1,4 +1,4 @@
-package miinat;
+package miinat.engine;
 
 import org.junit.After;
 import org.junit.AfterClass;

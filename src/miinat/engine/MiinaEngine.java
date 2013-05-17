@@ -1,4 +1,4 @@
-package miinat;
+package miinat.engine;
 
 import java.util.ArrayList;
 import java.util.Random;
