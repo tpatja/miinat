@@ -72,7 +72,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         int mines=0;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                if(engine.squareAt(x, y).has_mine)
+                if(engine.squareAt(x, y).hasMine)
                     ++mines;
             }
         }
@@ -87,7 +87,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         int flagged=0;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                if(engine.squareAt(x, y).flagged)
+                if(engine.squareAt(x, y).isFlagged)
                     ++flagged;
             }
         }
@@ -100,8 +100,8 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         MiinaEngine.Square s = engine.new Square(1,1);
         assertEquals(s.x, 1);
         assertEquals(s.y, 1);
-        assertFalse(s.has_mine);
-        assertFalse(s.flagged);
+        assertFalse(s.hasMine);
+        assertFalse(s.isFlagged);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         boolean callDone = false;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                if(engine.squareAt(x, y).has_mine) {
+                if(engine.squareAt(x, y).hasMine) {
                     engine.uncoverSquare(x, y);
                     callDone = true;
                     break;
@@ -131,7 +131,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         boolean callDone = false;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                if(!engine.squareAt(x, y).has_mine) {
+                if(!engine.squareAt(x, y).hasMine) {
                     engine.uncoverSquare(x, y);
                     callDone = true;
                     break;
@@ -161,10 +161,10 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         engine.init(sb.toString());
         
         assertTrue(this.gameStartedCalled);
-        assertTrue( engine.squareAt(1, 1).has_mine );
-        assertTrue( engine.squareAt(0, 0).has_mine );
-        assertFalse( engine.squareAt(9, 9).has_mine );
-        assertTrue( engine.squareAt(8, 4).has_mine );
+        assertTrue( engine.squareAt(1, 1).hasMine );
+        assertTrue( engine.squareAt(0, 0).hasMine );
+        assertFalse( engine.squareAt(9, 9).hasMine );
+        assertTrue( engine.squareAt(8, 4).hasMine );
     }
     
     @Test

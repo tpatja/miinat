@@ -22,27 +22,27 @@ public class MiinaEngine {
         public Square(int x, int y) {
             this.x = x;
             this.y = y;
-            this.flagged = false;
-            this.has_mine = false;
+            this.isFlagged = false;
+            this.hasMine = false;
         }
-        public Square(int x, int y, boolean has_mine) {
+        public Square(int x, int y, boolean hasMine) {
             this.x = x;
             this.y = y;
-            this.flagged = false;
-            this.has_mine = has_mine;
+            this.isFlagged = false;
+            this.hasMine = hasMine;
         }
-        public boolean has_mine;
-        public boolean flagged;
+        public boolean hasMine;
+        public boolean isFlagged;
         public int x;
         public int y;
     }
     
-    public MiinaEngine(int width, int height, int n_mines, MiinaEngineListener listener)
+    public MiinaEngine(int width, int height, int nMines, MiinaEngineListener listener)
     {
         this.width = width;
         this.height = height;
-        this.n_mines = n_mines;
-        this.game_over = false;
+        this.nMines = nMines;
+        this.gameOver = false;
         this.listener = listener;
         this.squares = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class MiinaEngine {
     }
     
     public boolean isGameOver() {
-        return this.game_over;
+        return this.gameOver;
     }
     
     public Square squareAt(int x, int y) {
@@ -89,13 +89,13 @@ public class MiinaEngine {
     {
         
         // randomly place mines
-        for(int i=0; i < this.n_mines; i++) {
+        for(int i=0; i < this.nMines; i++) {
             Square s = null;
             while(true) {
                 s = this.getRandomSquare();
             
-                if(!s.has_mine) {
-                    s.has_mine = true;
+                if(!s.hasMine) {
+                    s.hasMine = true;
                     break;
                 }
             }
@@ -108,24 +108,24 @@ public class MiinaEngine {
      * 
      * Format: '*' means mine, '-' means no mine.
      *         data length must be equal to amount of squares.
-     *         amount of mines must be equal to this.n_mines
+     *         amount of mines must be equal to this.nMines
      *         
-     * @param mine_data 
+     * @param mineData 
      */
-    public void init(String mine_data) {
-        assert mine_data.length() == this.squares.size();
-        int given_mines=0;
-        for(int i=0; i<mine_data.length(); ++i) {
-            if(mine_data.charAt(i) == '*')
-                ++given_mines;
+    public void init(String mineData) {
+        assert mineData.length() == this.squares.size();
+        int givenMineCount=0;
+        for(int i=0; i<mineData.length(); ++i) {
+            if(mineData.charAt(i) == '*')
+                ++givenMineCount;
         }
-        // TODO: maybe OK to mutate this.n_mines in this case?
-        assert given_mines == this.n_mines;
+        // TODO: maybe OK to mutate this.nMines in this case?
+        assert givenMineCount == this.nMines;
         
         for(int y=0; y<this.getHeight(); ++y) {
             for(int x=0; x<this.getWidth(); ++x) {
                 int idx = y * this.getWidth() + x;
-                this.squareAt(x,y).has_mine = mine_data.charAt(idx) == '*';
+                this.squareAt(x,y).hasMine = mineData.charAt(idx) == '*';
             }
         }
         listener.gameStarted();
@@ -133,10 +133,10 @@ public class MiinaEngine {
     
 
     public void uncoverSquare(int x, int y) {
-        assert !this.game_over;
+        assert !this.gameOver;
         Square s = this.squareAt(x, y);
-        if(s.has_mine) {
-            this.game_over = true;
+        if(s.hasMine) {
+            this.gameOver = true;
             listener.gameOver();
         }
         else {
@@ -162,10 +162,10 @@ public class MiinaEngine {
      */
     private ArrayList<Square> getSurroundingSquares(Square s) {
         ArrayList<Square> ret = new ArrayList<>();
-        for(int x_offset = -1; x_offset <= 1; ++x_offset) {
-            for(int y_offset = -1; y_offset <= 1; ++y_offset) {
-                int x = s.x + x_offset;
-                int y = s.y + y_offset;
+        for(int xOffset = -1; xOffset <= 1; ++xOffset) {
+            for(int yOffset = -1; yOffset <= 1; ++yOffset) {
+                int x = s.x + xOffset;
+                int y = s.y + yOffset;
                 if( !(x == s.x && y == s.y) && this.squareIsOnBoard(x, y)) {
                     ret.add(this.squareAt(x, y));
                 }
@@ -178,17 +178,17 @@ public class MiinaEngine {
         int ret=0;
         ArrayList<Square> neighbors = this.getSurroundingSquares(this.squareAt(x, y));
         for(Square neighbor : neighbors) {
-            if(neighbor.has_mine)
+            if(neighbor.hasMine)
                 ++ret;
         }
         return ret;
     }
     
     
-    private int n_mines;
+    private int nMines;
     private int width;
     private int height;
-    private boolean game_over;
+    private boolean gameOver;
     private MiinaEngineListener listener;
     private ArrayList<Square> squares;
 }
