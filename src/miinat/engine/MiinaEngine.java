@@ -98,26 +98,29 @@ public class MiinaEngine {
      */    
     public void init() 
     {
-        
-        // randomly place mines
+        this.randomlyPlaceMines();
+        listener.gameStarted();
+    }
+
+    private void randomlyPlaceMines() {
         for(int i=0; i < this.nMines; i++) {
             Square s = null;
             while(true) {
                 s = this.getRandomSquare();
-            
+
                 if(!s.hasMine) {
                     s.hasMine = true;
                     break;
                 }
             }
         }
-        listener.gameStarted();
     }
     
     /**
      * Initialize engine with mines represented by given string
      * 
      * Format: '*' means mine, '-' means no mine.
+     * Remarks:
      *         data length must be equal to amount of squares.
      *         amount of mines must be equal to this.nMines
      *         
@@ -151,7 +154,6 @@ public class MiinaEngine {
             listener.gameOver();
         }
         else {
-            // TODO: implement logic
             s.isCovered = false;
             s.surroundingMines = this.countSurroundingMines(s);
             if(s.surroundingMines == 0) {
