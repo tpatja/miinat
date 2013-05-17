@@ -144,7 +144,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
     }
 
     @Test
-    public void testEngineInitWithPredefinedMines() {
+    public void testEngineInitedWithPredefinedMines() {
         
         StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
         sb.append("*---------")
@@ -168,7 +168,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
     }
     
     @Test
-    public void givenEngineInitWithPredefinedMinesSurroundingMineCountOK() {
+    public void givenEngineInitedWithPredefinedMinesSurroundingMineCountOK() {
         
         StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
         sb.append("*---------")
@@ -189,7 +189,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
 
     
     @Test
-    public void givenEngineInitWithPredefinedMinesUncoverOK() {
+    public void givenEngineInitedWithPredefinedMinesUncoveringOK() {
         
         StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
         sb.append("*---------")
