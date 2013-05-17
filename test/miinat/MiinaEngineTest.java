@@ -11,16 +11,33 @@ import static org.junit.Assert.*;
  *
  * @author tpatja
  */
-public class MiinaEngineTest {
+public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
 
     private MiinaEngine engine;
     private final int WIDTH  = 10;
     private final int HEIGHT = 10;
     private final int MINES  = 15;
+    private boolean gameOverCalled;
+    private boolean gameStartedCalled;
 
     
     public MiinaEngineTest() {
+        this.gameOverCalled = false;
+        this.gameStartedCalled = false;
     }
+    
+    @Override
+    public void gameOver() {
+        System.out.println("game over");
+        this.gameOverCalled = true;
+    }
+    
+    @Override
+    public void gameStarted() {
+        this.gameStartedCalled = true;
+    }
+
+
     
     @BeforeClass
     public static void setUpClass() {
@@ -32,8 +49,10 @@ public class MiinaEngineTest {
     
     @Before
     public void setUp() {
-        engine = new MiinaEngine(this.WIDTH,this.HEIGHT,this.MINES);
-        engine.init();
+        engine = new MiinaEngine(this.WIDTH,this.HEIGHT,this.MINES, this);
+        
+        this.gameOverCalled = false;
+        this.gameStartedCalled = false;
     }
     
     @After
@@ -42,11 +61,14 @@ public class MiinaEngineTest {
 
     @Test
     public void givenEngineInitedGameIsNotOver() {
+        engine.init();
         assertFalse(engine.isGameOver());
     }
 
     @Test
     public void givenEngineInitedAmountOfMinesIsCorrect() {
+        engine.init();
+
         int mines=0;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
@@ -60,6 +82,8 @@ public class MiinaEngineTest {
     
     @Test
     public void givenEngineInitedNoMinesAreFlagged() {
+        engine.init();
+
         int flagged=0;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
@@ -78,7 +102,89 @@ public class MiinaEngineTest {
         assertEquals(s.y, 1);
         assertFalse(s.has_mine);
         assertFalse(s.flagged);
+    }
+
+    @Test
+    public void givenEngineInitedAndMineUncoveredGameOverCalled() {
+        engine.init();
+
+        boolean callDone = false;
+        for(int y=0; y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                if(engine.squareAt(x, y).has_mine) {
+                    engine.uncoverSquare(x, y);
+                    callDone = true;
+                    break;
+                }
+            }
+            if(callDone) break;
+        }
+        assertTrue(callDone);
+        assertTrue(this.gameOverCalled);
+        assertTrue(engine.isGameOver());
+    }
+
+    @Test
+    public void givenEngineInitedAndNonMineUncoveredGameOverNotCalled() {
+        engine.init();
+
+        boolean callDone = false;
+        for(int y=0; y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                if(!engine.squareAt(x, y).has_mine) {
+                    engine.uncoverSquare(x, y);
+                    callDone = true;
+                    break;
+                }
+            }
+            if(callDone) break;
+        }
+        assertTrue(callDone);
+        assertFalse(this.gameOverCalled);
+        assertFalse(engine.isGameOver());
+    }
+
+    @Test
+    public void testEngineInitWithPredefinedMines() {
         
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        sb.append("*---------")
+          .append("-*--------")
+          .append("-*----*---")
+          .append("----*----*")
+          .append("-------**-")
+          .append("-*--------")
+          .append("-*-----*--")
+          .append("-*----*---")
+          .append("-*--------")
+          .append("-*--------");
+        engine.init(sb.toString());
+        
+        assertTrue(this.gameStartedCalled);
+        assertTrue( engine.squareAt(1, 1).has_mine );
+        assertTrue( engine.squareAt(0, 0).has_mine );
+        assertFalse( engine.squareAt(9, 9).has_mine );
+        assertTrue( engine.squareAt(8, 4).has_mine );
+    }
+    
+    @Test
+    public void givenEngineInitWithPredefinedMinesSurroundingMineCountOK() {
+        
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        sb.append("*---------")
+          .append("-*--------")
+          .append("-*----*---")
+          .append("----*----*")
+          .append("-------**-")
+          .append("-*--------")
+          .append("-*-----*--")
+          .append("-*----*---")
+          .append("-*--------")
+          .append("-*--------");
+        engine.init(sb.toString());
+        assertEquals( engine.countSurroundingMines(1, 0), 2);
+        assertEquals( engine.countSurroundingMines(0, 1), 3);
+        assertEquals( engine.countSurroundingMines(8, 0), 0);
     }
     
     
