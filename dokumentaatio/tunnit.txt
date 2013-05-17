@@ -2,3 +2,5 @@
 * 2h aiheen määrittelyä, github repositoryn luominen etc 
 16.5.2013
 * 3h netbeans projektin luonti, peli enginen alustava toteutus + kaavio
+17.5.2013
+* 3h koodausta: pelilogiikan toteutus, testejä ja refaktorointia
