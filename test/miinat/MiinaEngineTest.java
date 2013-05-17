@@ -28,7 +28,6 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
     
     @Override
     public void gameOver() {
-        System.out.println("game over");
         this.gameOverCalled = true;
     }
     
@@ -165,6 +164,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         assertTrue( engine.squareAt(0, 0).hasMine );
         assertFalse( engine.squareAt(9, 9).hasMine );
         assertTrue( engine.squareAt(8, 4).hasMine );
+        assertTrue( sb.toString().equals(getMineRepresentation()));
     }
     
     @Test
@@ -186,6 +186,116 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         assertEquals( engine.countSurroundingMines(0, 1), 3);
         assertEquals( engine.countSurroundingMines(8, 0), 0);
     }
+
+    
+    @Test
+    public void givenEngineInitWithPredefinedMinesUncoverOK() {
+        
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        sb.append("*---------")
+          .append("-*--------")
+          .append("-*----*---")
+          .append("----*----*")
+          .append("-------**-")
+          .append("-*--------")
+          .append("-*-----*--")
+          .append("-*----*---")
+          .append("-*--------")
+          .append("-*--------");
+        engine.init(sb.toString());
+        showMines();
+        engine.uncoverSquare(2,0);        
+        showGrid();        
+        assertFalse( engine.squareAt(2,0).isCovered );
+    
+        sb.setLength(0);
+        sb.append( "##1#######")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########");
+ 
+        assertTrue( getGridRepresentation().equals(sb.toString()) );
+    
+        
+        engine.uncoverSquare(4,0);
+        
+        sb.setLength(0);
+        sb.append( "##1_______")
+           .append("##2__111__")
+           .append("##2112#111")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########")
+           .append("##########");
+ 
+        assertTrue( getGridRepresentation().equals(sb.toString()) );
+        
+        showGrid();
+
+        
+    }
+
+    
+    private String getMineRepresentation() {
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        for(int y=0;y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                MiinaEngine.Square s = engine.squareAt(x, y);
+                sb.append(s.hasMine ? "*" : "-");
+            }
+        }
+        return sb.toString();
+    }
+    
+    private void showMines() {
+        String repr = getMineRepresentation();
+        for(int y=0;y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                System.out.print(repr.charAt(y*engine.getWidth() +x));
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+    
+    private String getGridRepresentation() {
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        for(int y=0;y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                MiinaEngine.Square s = engine.squareAt(x, y);
+                char ch;
+                if(s.isCovered) {
+                    sb.append("#");
+                }
+                else if (s.surroundingMines > 0) {
+                    sb.append(s.surroundingMines);
+                }
+                else {
+                    sb.append("_");
+                }
+            }
+        }
+        return sb.toString();
+    }
     
     
+    private void showGrid() {
+        String repr = this.getGridRepresentation();
+        for(int y=0;y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                System.out.print(repr.charAt(y*engine.getWidth() +x));
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }    
 }

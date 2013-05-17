@@ -24,17 +24,28 @@ public class MiinaEngine {
             this.y = y;
             this.isFlagged = false;
             this.hasMine = false;
+            this.isCovered = true;
+            this.surroundingMines = 0;
+            this.wasChecked = false;
         }
         public Square(int x, int y, boolean hasMine) {
             this.x = x;
             this.y = y;
             this.isFlagged = false;
             this.hasMine = hasMine;
+            this.isCovered = true;
+            this.surroundingMines = 0;
+            this.wasChecked = false;
         }
         public boolean hasMine;
         public boolean isFlagged;
+        public boolean isCovered;
+        public boolean wasChecked;
         public int x;
         public int y;
+        
+        // set when mine is uncovered
+        public int surroundingMines;
     }
     
     public MiinaEngine(int width, int height, int nMines, MiinaEngineListener listener)
@@ -141,8 +152,16 @@ public class MiinaEngine {
         }
         else {
             // TODO: implement logic
+            s.isCovered = false;
+            s.surroundingMines = this.countSurroundingMines(s);
+            if(s.surroundingMines == 0) {
+                s.wasChecked = true;
+                for(Square neighbor : this.getSurroundingSquares(s) ) {
+                    if(!neighbor.wasChecked)
+                        this.uncoverSquare(neighbor.x, neighbor.y);
+                }
+            }
         }
-        
     }
     
     /**
@@ -172,6 +191,10 @@ public class MiinaEngine {
             }
         }
         return ret;
+    }
+    
+    private int countSurroundingMines(Square s) {
+        return this.countSurroundingMines(s.x, s.y);
     }
     
     public int countSurroundingMines(int x, int y) {
