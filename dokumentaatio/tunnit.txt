@@ -4,3 +4,6 @@
 * 3h netbeans projektin luonti, peli enginen alustava toteutus + kaavio
 17.5.2013
 * 3h koodausta: pelilogiikan toteutus, testejä ja refaktorointia
+23.5.2013
+* 3h koodausta: refaktorointia, konsolikäyttöliittymän toteutus 
+  + dokumentaatio päivitys

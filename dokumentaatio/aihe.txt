@@ -1,8 +1,15 @@
 Ohjelmoinnin harjoitustyö
 
-Aihe: miinaharava-peli
+Aihe: miinaharava peli
 
-Toteutetaan miinaharava-peli javalla, jossa on graafinen käyttöliittymä. Peli on yksinkertainen miinaharava peli, jossa on dynaamisen kokoinen ruudukko ja miinojen määrä, sekä high score seuranta.
+Toteutetaan miinaharava peli javalla, jossa on graafinen käyttöliittymä.
+Peli on yksinkertainen miinaharava peli, jossa on dynaamisen kokoinen ruudukko 
+ja miinojen määrä, sekä high score seuranta.
+
+Pelin kehittämisessä käytetään TDD lähestymistapaa, eli pyritään kirjoittamaan 
+yksikkötestit ennen toteuttamista ja pitämään testikattavuus suurena. Ennen 
+graafisen käyttöliittymän ohjelmoimista tehdään yksinkertainen 
+konsolikäyttöliittymä.
 
 Käyttäjä: Pelaaja
 
@@ -10,7 +17,8 @@ Pelaajan toiminnot:
 * uusi peli
  * alustaa asetuksien mukaisen kokoisen ruudukon peliä varten
 * ruudun "avaaminen"
- * jos ruudussa on miina, peli loppuu. Muuten avataan kaikki ympäröivät vapaat ruudut.
+ * jos ruudussa on miina, peli loppuu. Muuten avataan rekursiiviset kaikki 
+   ympäröivät ruudut joilla ole miinoja ympäröivissä ruuduissa.
 * pelin vaikeusasteen asettaminen
  * pelin asetuksista voi valita kolmesta eri vaikeuasteesta:
   * helppo: 9x9 ruudukko, 10 miinaa
