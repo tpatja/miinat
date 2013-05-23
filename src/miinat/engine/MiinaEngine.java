@@ -25,8 +25,8 @@ public class MiinaEngine {
             this.isFlagged = false;
             this.hasMine = false;
             this.isCovered = true;
-            this.surroundingMines = 0;
-            this.wasChecked = false;
+            this.surroundingMines = -1;
+
         }
         public Square(int x, int y, boolean hasMine) {
             this.x = x;
@@ -34,17 +34,16 @@ public class MiinaEngine {
             this.isFlagged = false;
             this.hasMine = hasMine;
             this.isCovered = true;
-            this.surroundingMines = 0;
-            this.wasChecked = false;
+            this.surroundingMines = -1;
+        }
+        public boolean wasChecked() {
+            return this.surroundingMines > -1;
         }
         public boolean hasMine;
         public boolean isFlagged;
         public boolean isCovered;
-        public boolean wasChecked;
         public int x;
         public int y;
-        
-        // set when mine is uncovered
         public int surroundingMines;
     }
     
@@ -157,9 +156,8 @@ public class MiinaEngine {
             s.isCovered = false;
             s.surroundingMines = this.countSurroundingMines(s);
             if(s.surroundingMines == 0) {
-                s.wasChecked = true;
                 for(Square neighbor : this.getSurroundingSquares(s) ) {
-                    if(!neighbor.wasChecked)
+                    if(!neighbor.wasChecked())
                         this.uncoverSquare(neighbor.x, neighbor.y);
                 }
             }
