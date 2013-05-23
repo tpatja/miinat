@@ -15,7 +15,7 @@ public class MiinaEngine {
     public interface MiinaEngineListener
     {
         void gameStarted();
-        void gameOver();
+        void gameOver(boolean won);
     }
 
     public class Square {
@@ -24,7 +24,6 @@ public class MiinaEngine {
             this.y = y;
             this.isFlagged = false;
             this.hasMine = false;
-            this.isCovered = true;
             this.surroundingMines = -1;
 
         }
@@ -33,15 +32,15 @@ public class MiinaEngine {
             this.y = y;
             this.isFlagged = false;
             this.hasMine = hasMine;
-            this.isCovered = true;
             this.surroundingMines = -1;
         }
-        public boolean wasChecked() {
-            return this.surroundingMines > -1;
+        
+        public boolean isCovered() {
+            return this.surroundingMines == -1;
         }
+        
         public boolean hasMine;
         public boolean isFlagged;
-        public boolean isCovered;
         public int x;
         public int y;
         public int surroundingMines;
@@ -148,16 +147,18 @@ public class MiinaEngine {
     public void uncoverSquare(int x, int y) {
         assert !this.gameOver;
         Square s = this.squareAt(x, y);
+        if(s == null) // ignore invalid co-ordinates
+            return;
+        
+        s.surroundingMines = this.countSurroundingMines(s);
         if(s.hasMine) {
             this.gameOver = true;
-            listener.gameOver();
+            listener.gameOver(false);
         }
         else {
-            s.isCovered = false;
-            s.surroundingMines = this.countSurroundingMines(s);
             if(s.surroundingMines == 0) {
                 for(Square neighbor : this.getSurroundingSquares(s) ) {
-                    if(!neighbor.wasChecked())
+                    if(neighbor.isCovered())
                         this.uncoverSquare(neighbor.x, neighbor.y);
                 }
             }
@@ -206,6 +207,32 @@ public class MiinaEngine {
         }
         return ret;
     }
+    
+    public String getGridRepresentation() {
+        StringBuilder sb = new StringBuilder(this.getWidth()*this.getHeight());
+        for(int y=0;y<this.getHeight(); ++y) {
+            for(int x=0; x<this.getWidth(); ++x) {
+                MiinaEngine.Square s = this.squareAt(x, y);
+                char ch;
+                if(s.isCovered()) {
+                    sb.append("#");
+                }
+                else {
+                    if(s.hasMine) {
+                        sb.append("X");
+                    }
+                    else if (s.surroundingMines > 0) {
+                        sb.append(s.surroundingMines);
+                    }
+                    else {
+                        sb.append("_");
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+    
     
     
     private int nMines;

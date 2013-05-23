@@ -19,24 +19,25 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
     private final int MINES  = 15;
     private boolean gameOverCalled;
     private boolean gameStartedCalled;
+    private boolean gameOverParamValue;
 
     
     public MiinaEngineTest() {
         this.gameOverCalled = false;
         this.gameStartedCalled = false;
+        this.gameOverParamValue = false;
     }
     
     @Override
-    public void gameOver() {
+    public void gameOver(boolean won) {
         this.gameOverCalled = true;
+        this.gameOverParamValue = won;
     }
     
     @Override
     public void gameStarted() {
         this.gameStartedCalled = true;
     }
-
-
     
     @BeforeClass
     public static void setUpClass() {
@@ -52,6 +53,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         
         this.gameOverCalled = false;
         this.gameStartedCalled = false;
+        this.gameOverParamValue = false;
     }
     
     @After
@@ -120,6 +122,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         }
         assertTrue(callDone);
         assertTrue(this.gameOverCalled);
+        assertTrue(this.gameOverParamValue == false);
         assertTrue(engine.isGameOver());
     }
 
@@ -206,7 +209,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         showMines();
         engine.uncoverSquare(2,0);        
         showGrid();        
-        assertFalse( engine.squareAt(2,0).isCovered );
+        assertFalse( engine.squareAt(2,0).isCovered() );
     
         sb.setLength(0);
         sb.append( "##1#######")
@@ -220,7 +223,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
            .append("##########")
            .append("##########");
  
-        assertTrue( getGridRepresentation().equals(sb.toString()) );
+        assertTrue( engine.getGridRepresentation().equals(sb.toString()) );
     
         
         engine.uncoverSquare(4,0);
@@ -237,7 +240,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
            .append("##########")
            .append("##########");
  
-        assertTrue( getGridRepresentation().equals(sb.toString()) );
+        assertTrue( engine.getGridRepresentation().equals(sb.toString()) );
         
         showGrid();
 
@@ -267,29 +270,10 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         System.out.println();
     }
     
-    private String getGridRepresentation() {
-        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
-        for(int y=0;y<engine.getHeight(); ++y) {
-            for(int x=0; x<engine.getWidth(); ++x) {
-                MiinaEngine.Square s = engine.squareAt(x, y);
-                char ch;
-                if(s.isCovered) {
-                    sb.append("#");
-                }
-                else if (s.surroundingMines > 0) {
-                    sb.append(s.surroundingMines);
-                }
-                else {
-                    sb.append("_");
-                }
-            }
-        }
-        return sb.toString();
-    }
     
     
     private void showGrid() {
-        String repr = this.getGridRepresentation();
+        String repr = engine.getGridRepresentation();
         for(int y=0;y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 System.out.print(repr.charAt(y*engine.getWidth() +x));
