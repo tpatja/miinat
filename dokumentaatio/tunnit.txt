@@ -7,3 +7,6 @@
 23.5.2013
 * 3h koodausta: refaktorointia, konsolikäyttöliittymän toteutus 
   + dokumentaatio päivitys
+30.5.2013
+* 3h refaktorointia, graafisen Swing UI:n raakile, sekvenssikaavio 
+  engine luonnista, tunnit
