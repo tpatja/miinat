@@ -11,6 +11,12 @@ public class Square {
     public int y;
     public int surroundingMines;
 
+    /**
+     * Constuctor
+     * 
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     */
     public Square(int x, int y) {
         this.x = x;
         this.y = y;
@@ -19,6 +25,14 @@ public class Square {
         this.surroundingMines = -1;
 
     }
+    
+    /**
+     * Constructor
+     * 
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     * @param hasMine If true, square has a mine
+     */
     public Square(int x, int y, boolean hasMine) {
         this.x = x;
         this.y = y;

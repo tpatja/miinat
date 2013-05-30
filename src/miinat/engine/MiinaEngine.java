@@ -19,6 +19,14 @@ public class MiinaEngine {
     private IEngineObserver observer;
     private ArrayList<Square> squares;
     
+    /**
+     * Contructor
+     * 
+     * @param width    Width of minefield
+     * @param height   Height of minefield
+     * @param nMines   Number of mines
+     * @param observer Observer interface that will receive events
+     */
     public MiinaEngine(int width, int height, int nMines, IEngineObserver observer)
     {
         this.width = width;
@@ -117,6 +125,12 @@ public class MiinaEngine {
     }
     
 
+    /** 
+     * Uncover a square given its coordinates
+     * 
+     * @param x x-coordinate of square to uncover
+     * @param y y-coordinate of square to uncover
+     */
     public void uncoverSquare(int x, int y) {
         assert !this.gameOver;
         Square s = this.squareAt(x, y);
@@ -139,6 +153,7 @@ public class MiinaEngine {
     }
     
     /**
+     * Is square on the board
      * 
      * @param x
      * @param y
@@ -149,8 +164,9 @@ public class MiinaEngine {
     }
     
     /** 
+     * Retrieve surrounding squares of given square
      * 
-     * @param s
+     * @param s given square
      * @return squares surrounding given square (max 8)
      */
     private ArrayList<Square> getSurroundingSquares(Square s) {
@@ -181,6 +197,16 @@ public class MiinaEngine {
         return ret;
     }
     
+    /**
+     * Get a textual representation of user presentable grid data.
+     * Format: one character per square, 
+     *        '#' -> covered
+     *        'X' -> mine
+     *        '_' -> empty
+     *        '<number>' -> empty with n surrounding mines
+     * 
+     * @return String containing representation of the grid data
+     */
     public String getGridRepresentation() {
         StringBuilder sb = new StringBuilder(this.getWidth()*this.getHeight());
         for(int y=0;y<this.getHeight(); ++y) {
@@ -205,7 +231,5 @@ public class MiinaEngine {
         }
         return sb.toString();
     }
-    
-    
-    
+
 }
