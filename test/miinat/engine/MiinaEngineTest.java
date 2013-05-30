@@ -1,5 +1,8 @@
 package miinat.engine;
 
+import miinat.engine.IEngineObserver;
+import miinat.engine.Square;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,7 +14,7 @@ import static org.junit.Assert.*;
  *
  * @author tpatja
  */
-public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
+public class MiinaEngineTest implements IEngineObserver {
 
     private MiinaEngine engine;
     private final int WIDTH  = 10;
@@ -98,7 +101,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
    
     @Test
     public void testSquare() {
-        MiinaEngine.Square s = engine.new Square(1,1);
+        Square s = new Square(1,1);
         assertEquals(s.x, 1);
         assertEquals(s.y, 1);
         assertFalse(s.hasMine);
@@ -252,7 +255,7 @@ public class MiinaEngineTest implements MiinaEngine.MiinaEngineListener {
         StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
         for(int y=0;y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                MiinaEngine.Square s = engine.squareAt(x, y);
+                Square s = engine.squareAt(x, y);
                 sb.append(s.hasMine ? "*" : "-");
             }
         }

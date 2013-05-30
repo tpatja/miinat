@@ -5,7 +5,7 @@
 package miinat.ui;
 
 import miinat.engine.MiinaEngine;
-import miinat.engine.MiinaEngine.MiinaEngineListener;
+import miinat.engine.IEngineObserver;
 
 import java.util.Scanner;
 
@@ -14,7 +14,7 @@ import java.util.Scanner;
  *
  * @author tpatja
  */
-public class ConsoleUi implements MiinaEngineListener {
+public class ConsoleUi implements IEngineObserver {
     
     private MiinaEngine engine;
     
