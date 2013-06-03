@@ -17,8 +17,34 @@ implements
         MouseListener,
         miinat.engine.IEngineObserver {
 
+    
+    private class UiSquare {
+        
+        private JLabel label;
+        private Square square;
+    
+        UiSquare(Square s, JLabel l) {
+            this.square = s;
+            this.label = l;
+        }
+        
+        public JLabel getLabel() {
+            return this.label;
+        }
+        public void setLabel(JLabel l) {
+            this.label = l;
+        }
+        public Square getSquare() {
+            return this.square;
+        }
+        public void setSquare(Square s) {
+            this.square = s;
+        }
+        
+    }
+    
     MiinaEngine engine;
-    JLabel[][] squares;
+    UiSquare[][] squares;
     GameState gameState;
     
     public enum GameState {
@@ -38,20 +64,20 @@ implements
         GridLayout gridLayout = new GridLayout(engine.getWidth(),engine.getHeight());
         setLayout(gridLayout);
         
-        this.squares = new JLabel[engine.getWidth()][engine.getHeight()];
+        this.squares = new UiSquare[engine.getWidth()][engine.getHeight()];
         
         setSize(engine.getWidth()*20 + 10, engine.getHeight()*20 + 10);
         
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                JLabel p = new JLabel();
-                p.setOpaque(true);
-                p.setSize(20,20);
-                p.setBackground(Color.GRAY);
-                p.setBorder( BorderFactory.createLineBorder(Color.BLACK) );
-                this.squares[x][y] = p;
-                p.addMouseListener(this);
-                add(p);
+                JLabel label = new JLabel();
+                label.setOpaque(true);
+                label.setSize(20,20);
+                label.setBackground(Color.GRAY);
+                label.setBorder( BorderFactory.createLineBorder(Color.BLACK) );
+                label.addMouseListener(this);
+                this.squares[x][y] = new UiSquare(engine.squareAt(x, y), label);
+                add(label);
             }
         }
         
@@ -63,20 +89,19 @@ implements
     private void updateUi() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                Square s = engine.squareAt(x, y);
-                JLabel label = this.squares[x][y];
-                if(s.isCovered()) {
-                    label.setBackground(Color.GRAY);
-                    label.setText("");
+                UiSquare s = this.squares[x][y];
+                if(s.square.isCovered()) {
+                    s.label.setBackground(Color.GRAY);
+                    s.label.setText("");
                 }
                 else {
-                    if(s.hasMine) {
-                        label.setBackground(Color.RED);
+                    if(s.square.hasMine) {
+                        s.label.setBackground(Color.RED);
                     }
                     else {
-                        if (s.surroundingMines > 0)
-                            label.setText(Integer.toString(s.surroundingMines));
-                        label.setBackground(Color.WHITE);
+                        if (s.square.surroundingMines > 0)
+                            s.label.setText(Integer.toString(s.square.surroundingMines));
+                        s.label.setBackground(Color.WHITE);
                     }
                 }
             }
@@ -87,6 +112,11 @@ implements
     public void gameStarted() {
         System.out.println("gameStarted");
         this.gameState = GameState.GameRunning;
+        for(int y=0; y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                this.squares[x][y].square = engine.squareAt(x, y);
+            }
+        }
         updateUi();
     }
     
@@ -217,27 +247,28 @@ implements
     }
     
     public void mouseClicked(MouseEvent e) {
-        if(this.gameState == GameState.GameRunning) {
-            Square sq = this.squareByClickSource( e.getSource() );
-            engine.uncoverSquare(sq.x, sq.y);
-            this.updateUi();
-        }
+        if(this.gameState != GameState.GameRunning) 
+            return;
+        
+        Square sq = this.uiSquareByMouseEventSource( e.getSource() ).square;
+        engine.uncoverSquare(sq.x, sq.y);
+        this.updateUi();
     }
     
-    private Square squareByClickSource(Object o) {
+    private UiSquare uiSquareByMouseEventSource(Object o) {
        for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                JLabel label = this.squares[x][y];
-                if(label == o)
-                    return this.engine.squareAt(x, y);
+                UiSquare us = this.squares[x][y];
+                if(us.getLabel() == o)
+                    return us;
             }
         }
        return null;
 
     }
     
-    
     public void mousePressed(MouseEvent e) {
+        
         
     }
     public void mouseReleased(MouseEvent e) {
@@ -245,12 +276,24 @@ implements
     }
     public void mouseEntered(MouseEvent e) {
         
+        if(this.gameState != GameState.GameRunning) 
+            return;
+        
+        UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
+        if(us.getSquare().isCovered()) {
+            us.getLabel().setBackground(Color.LIGHT_GRAY);
+        }
     }
     public void mouseExited(MouseEvent e) {
         
+        if(this.gameState != GameState.GameRunning) 
+            return;
+        UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
+        if(us.getSquare().isCovered()) {
+            us.getLabel().setBackground(Color.GRAY);
+        }
     }
-    
-    
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;

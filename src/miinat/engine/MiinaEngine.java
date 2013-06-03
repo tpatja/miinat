@@ -73,7 +73,7 @@ public class MiinaEngine {
     }
     
     /**
-     * Initialize engine with randomly placed mines
+     * (Re)Initialize engine with randomly placed mines
      */    
     public void init() 
     {
