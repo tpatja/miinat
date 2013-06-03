@@ -77,6 +77,9 @@ public class MiinaEngine {
      */    
     public void init() 
     {
+        for(int i=0; i < this.squares.size(); ++i)
+            this.squares.get(i).reset();
+        
         this.randomlyPlaceMines();
         observer.gameStarted();
     }

@@ -10,3 +10,7 @@
 30.5.2013
 * 3h refaktorointia, graafisen Swing UI:n raakile, sekvenssikaavio 
   engine luonnista, tunnit
+
+3.6.2013
+* 1h katselmointi
+* 1.5h GUI:n toteutusta

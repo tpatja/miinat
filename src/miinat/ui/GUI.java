@@ -10,67 +10,90 @@ import java.awt.event.*;
  *
  * @author Teemu Patja <tp@iki.fi>
  */
-public class MiinatFrame extends JFrame implements ActionListener, miinat.engine.IEngineObserver {
+public class GUI 
+extends 
+        JFrame 
+implements
+        MouseListener,
+        miinat.engine.IEngineObserver {
 
     MiinaEngine engine;
-    JPanel[][] squares;
+    JLabel[][] squares;
+    GameState gameState;
+    
+    public enum GameState {
+        Initial,
+        GameRunning,
+        GameWon,
+        GameLost
+    }
     
     /**
-     * Creates new form MiinatFrame
+     * Creates new form GUI
      */
-    public MiinatFrame() {
+    public GUI() {
         initComponents();
         engine = new MiinaEngine(10,10,15, this);
         
         GridLayout gridLayout = new GridLayout(engine.getWidth(),engine.getHeight());
         setLayout(gridLayout);
         
-        this.squares = new JPanel[engine.getWidth()][engine.getHeight()];
+        this.squares = new JLabel[engine.getWidth()][engine.getHeight()];
+        
+        setSize(engine.getWidth()*20 + 10, engine.getHeight()*20 + 10);
         
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
-                JPanel p = new JPanel();
+                JLabel p = new JLabel();
+                p.setOpaque(true);
+                p.setSize(20,20);
                 p.setBackground(Color.GRAY);
+                p.setBorder( BorderFactory.createLineBorder(Color.BLACK) );
                 this.squares[x][y] = p;
-                add(this.squares[x][y]);
+                p.addMouseListener(this);
+                add(p);
             }
         }
         
         gridLayout.addLayoutComponent(null, this);
-        engine.init();
-        
+        this.gameState = GameState.Initial;
+        this.engine.init();
     }
 
     private void updateUi() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 Square s = engine.squareAt(x, y);
-                JPanel spanel = this.squares[x][y];
+                JLabel label = this.squares[x][y];
                 if(s.isCovered()) {
-                    spanel.setBackground(Color.GRAY);
+                    label.setBackground(Color.GRAY);
+                    label.setText("");
                 }
                 else {
                     if(s.hasMine) {
-                        spanel.setBackground(Color.RED);
+                        label.setBackground(Color.RED);
                     }
                     else {
                         if (s.surroundingMines > 0)
-                            spanel.setToolTipText(Integer.toString(s.surroundingMines));
-                        spanel.setBackground(Color.WHITE);
+                            label.setText(Integer.toString(s.surroundingMines));
+                        label.setBackground(Color.WHITE);
                     }
-                  
                 }
-                
             }
         }
+        this.repaint();
     }
     
     public void gameStarted() {
+        System.out.println("gameStarted");
+        this.gameState = GameState.GameRunning;
         updateUi();
     }
     
     public void gameOver(boolean won) {
-        
+        System.out.println("gameOver, won:" + won);
+        this.gameState = won ? GameState.GameWon : GameState.GameLost;
+        repaint();
     }
     
     /**
@@ -97,7 +120,7 @@ public class MiinatFrame extends JFrame implements ActionListener, miinat.engine
         jMenuItem2.setName(""); // NOI18N
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                newGameActionPerformed(evt);
             }
         });
         jMenu1.add(jMenuItem2);
@@ -105,7 +128,7 @@ public class MiinatFrame extends JFrame implements ActionListener, miinat.engine
         jMenuItem3.setText("Exit");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                exitActionPerformed(evt);
             }
         });
         jMenu1.add(jMenuItem3);
@@ -143,21 +166,18 @@ public class MiinatFrame extends JFrame implements ActionListener, miinat.engine
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         JOptionPane.showMessageDialog(this, 
                 "Miinat\n\nMinesweeper clone\nAuthor: Teemu Patja <tp@iki.fi>");
-        
+                
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    private void newGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameActionPerformed
+        engine.init();
+    }//GEN-LAST:event_newGameActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
+        System.exit(0);
         
-    }
+    }//GEN-LAST:event_exitActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -176,13 +196,13 @@ public class MiinatFrame extends JFrame implements ActionListener, miinat.engine
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MiinatFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MiinatFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MiinatFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MiinatFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -191,10 +211,46 @@ public class MiinatFrame extends JFrame implements ActionListener, miinat.engine
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MiinatFrame().setVisible(true);
+                new GUI().setVisible(true);
             }
         });
     }
+    
+    public void mouseClicked(MouseEvent e) {
+        if(this.gameState == GameState.GameRunning) {
+            Square sq = this.squareByClickSource( e.getSource() );
+            engine.uncoverSquare(sq.x, sq.y);
+            this.updateUi();
+        }
+    }
+    
+    private Square squareByClickSource(Object o) {
+       for(int y=0; y<engine.getHeight(); ++y) {
+            for(int x=0; x<engine.getWidth(); ++x) {
+                JLabel label = this.squares[x][y];
+                if(label == o)
+                    return this.engine.squareAt(x, y);
+            }
+        }
+       return null;
+
+    }
+    
+    
+    public void mousePressed(MouseEvent e) {
+        
+    }
+    public void mouseReleased(MouseEvent e) {
+        
+    }
+    public void mouseEntered(MouseEvent e) {
+        
+    }
+    public void mouseExited(MouseEvent e) {
+        
+    }
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
