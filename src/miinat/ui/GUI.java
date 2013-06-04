@@ -18,6 +18,7 @@ implements
         miinat.engine.IEngineObserver {
 
     
+    
     private class UiSquare {
         
         private JLabel label;
@@ -59,15 +60,36 @@ implements
      */
     public GUI() {
         initComponents();
-        engine = new MiinaEngine(10,10,15, this);
+        // disable user resizing so grid will always be visible
+        this.setResizable(false); 
+        engine = new MiinaEngine(5,5,2, this);
+        this.gameState = GameState.Initial;
+        this.engine.init();
+    }
+
+    /**
+     * (Re)Initialize UI data and re-size the window according to grid size
+     * 
+     */
+    private void initUi() {
         
-        GridLayout gridLayout = new GridLayout(engine.getWidth(),engine.getHeight());
-        setLayout(gridLayout);
         
+        boolean isReinit = false;
+        if(this.squares != null) {
+            isReinit = true;
+            for(int x=0; x<this.squares.length; ++x) {
+                for(int y=0; y<this.squares[x].length; ++y) {
+                    remove(this.squares[x][y].label);
+                }
+            }
+        }
+        
+        this.squares = null; // force gc
         this.squares = new UiSquare[engine.getWidth()][engine.getHeight()];
         
-        setSize(engine.getWidth()*20 + 10, engine.getHeight()*20 + 10);
-        
+        int w = engine.getWidth()*20 + 10;
+        int h = engine.getHeight()*20 + 10 + this.getJMenuBar().getHeight();
+        setSize(w, h);
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 JLabel label = new JLabel();
@@ -81,11 +103,18 @@ implements
             }
         }
         
+        if(isReinit) {
+            // java "feature". needed if you dynamically add+remove components
+            this.getContentPane().invalidate();
+            this.getContentPane().validate();
+        }
+        GridLayout gridLayout = new GridLayout(engine.getHeight(), engine.getWidth());
+        setLayout(gridLayout);
         gridLayout.addLayoutComponent(null, this);
-        this.gameState = GameState.Initial;
-        this.engine.init();
+        
     }
 
+    
     private void updateUi() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
@@ -110,7 +139,7 @@ implements
     }
     
     public void gameStarted() {
-        System.out.println("gameStarted");
+        initUi();
         this.gameState = GameState.GameRunning;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
@@ -121,7 +150,7 @@ implements
     }
     
     public void gameOver(boolean won) {
-        System.out.println("gameOver, won:" + won);
+        System.out.println("gameOver: won=" + won);
         this.gameState = won ? GameState.GameWon : GameState.GameLost;
         repaint();
     }
@@ -138,6 +167,10 @@ implements
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        beginner = new javax.swing.JMenuItem();
+        intermediate = new javax.swing.JMenuItem();
+        advanced = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -154,6 +187,33 @@ implements
             }
         });
         jMenu1.add(jMenuItem2);
+        jMenu1.add(jSeparator1);
+
+        beginner.setText("Beginner");
+        beginner.setActionCommand("cmdBeginner");
+        beginner.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                beginnerActionPerformed(evt);
+            }
+        });
+        jMenu1.add(beginner);
+
+        intermediate.setText("Intermediate");
+        intermediate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                intermediateActionPerformed(evt);
+            }
+        });
+        jMenu1.add(intermediate);
+        intermediate.getAccessibleContext().setAccessibleName("Intermediate");
+
+        advanced.setText("Advanced");
+        advanced.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advancedActionPerformed(evt);
+            }
+        });
+        jMenu1.add(advanced);
 
         jMenuItem3.setText("Exit");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -207,6 +267,18 @@ implements
         System.exit(0);
         
     }//GEN-LAST:event_exitActionPerformed
+
+    private void beginnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_beginnerActionPerformed
+        this.engine.init(9, 9, 10);
+    }//GEN-LAST:event_beginnerActionPerformed
+
+    private void intermediateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intermediateActionPerformed
+        this.engine.init(16, 16, 40);
+    }//GEN-LAST:event_intermediateActionPerformed
+
+    private void advancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedActionPerformed
+        this.engine.init(30, 16, 99);
+    }//GEN-LAST:event_advancedActionPerformed
 
     
     /**
@@ -295,12 +367,16 @@ implements
     }
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem advanced;
+    private javax.swing.JMenuItem beginner;
+    private javax.swing.JMenuItem intermediate;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 
 

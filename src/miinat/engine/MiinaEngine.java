@@ -75,8 +75,7 @@ public class MiinaEngine {
     /**
      * (Re)Initialize engine with randomly placed mines
      */    
-    public void init() 
-    {
+    public void init() {
         for(int i=0; i < this.squares.size(); ++i)
             this.squares.get(i).reset();
         
@@ -84,6 +83,22 @@ public class MiinaEngine {
         observer.gameStarted();
     }
 
+    
+    public void init(int width, int height, int nMines) {
+        this.width = width;
+        this.height = height;
+        this.nMines = nMines;
+        this.squares.clear();
+        for(int y=0; y < this.height; ++y) {
+            for(int x=0; x < this.width; ++x) {
+                this.squares.add(new Square(x,y));
+            }
+        }
+        this.randomlyPlaceMines();
+        observer.gameStarted();
+    }
+    
+    
     private void randomlyPlaceMines() {
         for(int i=0; i < this.nMines; i++) {
             Square s = null;
@@ -141,10 +156,16 @@ public class MiinaEngine {
             return;
         
         s.surroundingMines = this.countSurroundingMines(s);
+        
         if(s.hasMine) {
             this.gameOver = true;
-            observer.gameOver(false);
-        }
+            this.observer.gameOver(false);
+        }   
+        else if(this.allNonMinesUncovered()) {
+            System.out.println("all non-mines uncovered");
+            this.gameOver = true;
+            this.observer.gameOver(true);
+        } 
         else {
             if(s.surroundingMines == 0) {
                 for(Square neighbor : this.getSurroundingSquares(s) ) {
@@ -233,6 +254,22 @@ public class MiinaEngine {
             }
         }
         return sb.toString();
+    }
+    
+    /**
+     * Check if all squares that don't contain mines are uncovered 
+     *  (winning condition)
+     * @return true if game is won 
+     */
+    private boolean allNonMinesUncovered() {
+        for(int y=0;y<this.getHeight(); ++y) {
+            for(int x=0; x<this.getWidth(); ++x) {
+                Square s = this.squareAt(x, y);
+                if(!s.hasMine && s.isCovered())
+                    return false;
+            }
+        }
+        return true;
     }
 
 }
