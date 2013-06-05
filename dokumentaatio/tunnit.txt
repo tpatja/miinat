@@ -16,3 +16,6 @@
 4.6.2013
 * 2h koodausta: engineen voittotilaanteen tunnistus, refaktorointia, GUI:seen 
   vaikeustasot, dynaaminen ikkunan koko jne
+5.6.2013
+* 2h koodausta: tuki ruutujen merkkamiselle, refaktorointia, testejä, 
+  javadoc kommentointia, aihemäärittelyn päivitys

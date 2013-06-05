@@ -348,14 +348,17 @@ public class MiinaEngine {
      */
     private boolean allMinesFlagged() {
         int nFlagged=0;
+        int nRealMinesFlagged=0;
         for(int y=0;y<this.getHeight(); ++y) {
             for(int x=0; x<this.getWidth(); ++x) {
                 Square s = this.squareAt(x, y);
-                if(s.isFlagged && s.hasMine)
+                if(s.isFlagged)
                     ++nFlagged;
+                if(s.isFlagged && s.hasMine)
+                    ++nRealMinesFlagged;
             }
         }
-        return nFlagged == this.nMines;
+        return (nFlagged == nRealMinesFlagged && nFlagged == this.nMines);
     }
 
 }

@@ -283,7 +283,7 @@ public class MiinaEngineTest implements IEngineObserver {
         assertTrue(!this.gameOverCalled);
         
         this.showGrid();
-        engine.flagSquare(1,9);
+        engine.flagSquare(1,9, true);
         this.showGrid();
         assertTrue(this.gameOverCalled && this.gameOverParamValue == true);
                 
