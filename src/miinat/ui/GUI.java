@@ -44,9 +44,10 @@ implements
         
     }
     
-    MiinaEngine engine;
-    UiSquare[][] squares;
-    GameState gameState;
+    private MiinaEngine engine;
+    private UiSquare[][] squares;
+    private GameState gameState;
+    private MiinaEngine.Level level;
     
     public enum GameState {
         Initial,
@@ -62,9 +63,10 @@ implements
         initComponents();
         // disable user resizing so grid will always be visible
         this.setResizable(false); 
-        engine = new MiinaEngine(5,5,2, this);
+        engine = new MiinaEngine(this);
         this.gameState = GameState.Initial;
-        this.engine.init();
+        this.level = MiinaEngine.Level.Beginner;
+        this.engine.startGame(this.level);
     }
 
     /**
@@ -113,14 +115,16 @@ implements
         gridLayout.addLayoutComponent(null, this);
         
     }
-
     
     private void updateUi() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 UiSquare s = this.squares[x][y];
                 if(s.square.isCovered()) {
-                    s.label.setBackground(Color.GRAY);
+                    if(s.square.isFlagged)
+                        s.label.setBackground(Color.YELLOW);
+                    else
+                        s.label.setBackground(Color.GRAY);
                     s.label.setText("");
                 }
                 else {
@@ -138,6 +142,7 @@ implements
         this.repaint();
     }
     
+    @Override
     public void gameStarted() {
         initUi();
         this.gameState = GameState.GameRunning;
@@ -149,6 +154,7 @@ implements
         updateUi();
     }
     
+    @Override
     public void gameOver(boolean won) {
         System.out.println("gameOver: won=" + won);
         this.gameState = won ? GameState.GameWon : GameState.GameLost;
@@ -171,6 +177,7 @@ implements
         beginner = new javax.swing.JMenuItem();
         intermediate = new javax.swing.JMenuItem();
         advanced = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -214,6 +221,7 @@ implements
             }
         });
         jMenu1.add(advanced);
+        jMenu1.add(jSeparator2);
 
         jMenuItem3.setText("Exit");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -260,24 +268,26 @@ implements
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void newGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameActionPerformed
-        engine.init();
+        engine.startGame(this.level);
     }//GEN-LAST:event_newGameActionPerformed
 
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
-        System.exit(0);
-        
+        System.exit(0);    
     }//GEN-LAST:event_exitActionPerformed
 
     private void beginnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_beginnerActionPerformed
-        this.engine.init(9, 9, 10);
+        this.level = MiinaEngine.Level.Beginner;
+        this.engine.startGame(this.level);
     }//GEN-LAST:event_beginnerActionPerformed
 
     private void intermediateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intermediateActionPerformed
-        this.engine.init(16, 16, 40);
+        this.level = MiinaEngine.Level.Intermediate;
+        this.engine.startGame(this.level);
     }//GEN-LAST:event_intermediateActionPerformed
 
     private void advancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedActionPerformed
-        this.engine.init(30, 16, 99);
+        this.level = MiinaEngine.Level.Advanced;
+        this.engine.startGame(this.level);
     }//GEN-LAST:event_advancedActionPerformed
 
     
@@ -312,18 +322,26 @@ implements
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new GUI().setVisible(true);
             }
         });
     }
     
+    
+    @Override
     public void mouseClicked(MouseEvent e) {
-        if(this.gameState != GameState.GameRunning) 
+        if(this.gameState != GameState.GameRunning)
             return;
         
         Square sq = this.uiSquareByMouseEventSource( e.getSource() ).square;
-        engine.uncoverSquare(sq.x, sq.y);
+        if(SwingUtilities.isLeftMouseButton(e)) {
+            engine.uncoverSquare(sq.x, sq.y);
+        }
+        else {
+            engine.flagSquare(sq.x, sq.y, !sq.isFlagged);
+        }
         this.updateUi();
     }
     
@@ -339,29 +357,33 @@ implements
 
     }
     
+    @Override
     public void mousePressed(MouseEvent e) {
         
         
     }
+    @Override
     public void mouseReleased(MouseEvent e) {
         
     }
+    @Override
     public void mouseEntered(MouseEvent e) {
         
         if(this.gameState != GameState.GameRunning) 
             return;
         
         UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
-        if(us.getSquare().isCovered()) {
+        if(us.getSquare().isCovered() && !us.getSquare().isFlagged) {
             us.getLabel().setBackground(Color.LIGHT_GRAY);
         }
     }
+    @Override
     public void mouseExited(MouseEvent e) {
         
         if(this.gameState != GameState.GameRunning) 
             return;
         UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
-        if(us.getSquare().isCovered()) {
+        if(us.getSquare().isCovered() && !us.getSquare().isFlagged) {
             us.getLabel().setBackground(Color.GRAY);
         }
     }
@@ -377,6 +399,7 @@ implements
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
     // End of variables declaration//GEN-END:variables
 
 

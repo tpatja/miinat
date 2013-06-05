@@ -13,3 +13,6 @@
 3.6.2013
 * 1h katselmointi
 * 2.5h GUI:n toteutusta
+4.6.2013
+* 2h koodausta: engineen voittotilaanteen tunnistus, refaktorointia, GUI:seen 
+  vaikeustasot, dynaaminen ikkunan koko jne

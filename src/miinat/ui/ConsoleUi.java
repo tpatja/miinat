@@ -27,9 +27,9 @@ public class ConsoleUi implements IEngineObserver {
     private GameState state;
         
     public ConsoleUi() {
-        this.engine = new MiinaEngine(10, 10, 15, this);
-        this.engine.init();
         this.state = GameState.Initial;
+        this.engine = new MiinaEngine(this);
+        this.engine.startGame(MiinaEngine.Level.Beginner);
     }
     
     public void startGame() {

@@ -19,6 +19,9 @@ Pelaajan toiminnot:
 * ruudun "avaaminen"
  * jos ruudussa on miina, peli loppuu. Muuten avataan rekursiiviset kaikki 
    ympäröivät ruudut joilla ole miinoja ympäröivissä ruuduissa.
+* ruudun "merkkaaminen"
+ * käyttäjä voi merkata ruudun miinaksi. Jos käyttäjä onnistuu merkkamaan kaikki
+  miinat oikein (ainoastaan oikeat miinat, ei muita ruutuja), peli on voitettu
 * pelin vaikeusasteen asettaminen
  * pelin asetuksista voi valita kolmesta eri vaikeuasteesta:
   * helppo: 9x9 ruudukko, 10 miinaa

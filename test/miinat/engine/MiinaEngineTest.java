@@ -1,7 +1,5 @@
 package miinat.engine;
 
-import miinat.engine.IEngineObserver;
-import miinat.engine.Square;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -11,6 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
+ * Class for testing game logic in MiinaEngine
  *
  * @author tpatja
  */
@@ -52,7 +51,7 @@ public class MiinaEngineTest implements IEngineObserver {
     
     @Before
     public void setUp() {
-        engine = new MiinaEngine(this.WIDTH,this.HEIGHT,this.MINES, this);
+        engine = new MiinaEngine(this);
         
         this.gameOverCalled = false;
         this.gameStartedCalled = false;
@@ -65,13 +64,13 @@ public class MiinaEngineTest implements IEngineObserver {
 
     @Test
     public void givenEngineInitedGameIsNotOver() {
-        engine.init();
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES);
         assertFalse(engine.isGameOver());
     }
 
     @Test
     public void givenEngineInitedAmountOfMinesIsCorrect() {
-        engine.init();
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES);
 
         int mines=0;
         for(int y=0; y<engine.getHeight(); ++y) {
@@ -86,7 +85,7 @@ public class MiinaEngineTest implements IEngineObserver {
     
     @Test
     public void givenEngineInitedNoMinesAreFlagged() {
-        engine.init();
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES);
 
         int flagged=0;
         for(int y=0; y<engine.getHeight(); ++y) {
@@ -110,7 +109,7 @@ public class MiinaEngineTest implements IEngineObserver {
 
     @Test
     public void givenEngineInitedAndMineUncoveredGameOverCalled() {
-        engine.init();
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES);
 
         boolean callDone = false;
         for(int y=0; y<engine.getHeight(); ++y) {
@@ -131,7 +130,7 @@ public class MiinaEngineTest implements IEngineObserver {
 
     @Test
     public void givenEngineInitedAndNonMineUncoveredGameOverNotCalled() {
-        engine.init();
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES);
 
         boolean callDone = false;
         for(int y=0; y<engine.getHeight(); ++y) {
@@ -163,7 +162,7 @@ public class MiinaEngineTest implements IEngineObserver {
           .append("-*----*---")
           .append("-*--------")
           .append("-*--------");
-        engine.init(sb.toString());
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES, sb.toString());
         
         assertTrue(this.gameStartedCalled);
         assertTrue( engine.squareAt(1, 1).hasMine );
@@ -187,7 +186,7 @@ public class MiinaEngineTest implements IEngineObserver {
           .append("-*----*---")
           .append("-*--------")
           .append("-*--------");
-        engine.init(sb.toString());
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES, sb.toString());
         assertEquals( engine.countSurroundingMines(1, 0), 2);
         assertEquals( engine.countSurroundingMines(0, 1), 3);
         assertEquals( engine.countSurroundingMines(8, 0), 0);
@@ -208,7 +207,7 @@ public class MiinaEngineTest implements IEngineObserver {
           .append("-*----*---")
           .append("-*--------")
           .append("-*--------");
-        engine.init(sb.toString());
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES, sb.toString());
         showMines();
         engine.uncoverSquare(2,0);        
         showGrid();        
@@ -246,10 +245,87 @@ public class MiinaEngineTest implements IEngineObserver {
         assertTrue( engine.getGridRepresentation().equals(sb.toString()) );
         
         showGrid();
-
         
     }
 
+
+    @Test
+    public void givenEngineInitedWithPredefinedMinesFlaggingAllMinesWinsGame() {
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        sb.append("*---------")
+          .append("-*--------")
+          .append("-*----*---")
+          .append("----*----*")
+          .append("-------**-")
+          .append("-*--------")
+          .append("-*-----*--")
+          .append("-*----*---")
+          .append("-*--------")
+          .append("-*--------");
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES, sb.toString());
+        
+        engine.flagSquare(0,0, true);
+        
+        assertTrue(!engine.isGameOver());
+        engine.flagSquare(1,1, true);
+        engine.flagSquare(1,2, true);
+        engine.flagSquare(6,2, true);
+        engine.flagSquare(4,3, true);
+        engine.flagSquare(9,3, true);
+        engine.flagSquare(7,4, true);
+        engine.flagSquare(8,4, true);
+        engine.flagSquare(1,5, true);
+        engine.flagSquare(1,6, true);
+        engine.flagSquare(7,6, true);
+        engine.flagSquare(1,7, true);
+        engine.flagSquare(6,7, true);
+        engine.flagSquare(1,8, true);
+        assertTrue(!this.gameOverCalled);
+        
+        this.showGrid();
+        engine.flagSquare(1,9);
+        this.showGrid();
+        assertTrue(this.gameOverCalled && this.gameOverParamValue == true);
+                
+    }
+
+    @Test
+    public void givenEngineInitedWithPredefinedMinesFlaggingNonMinesDoesNotEndGame() {
+        StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
+        sb.append("*---------")
+          .append("-*--------")
+          .append("-*----*---")
+          .append("----*----*")
+          .append("-------**-")
+          .append("-*--------")
+          .append("-*-----*--")
+          .append("-*----*---")
+          .append("-*--------")
+          .append("-*--------");
+        engine.startGame(this.WIDTH,this.HEIGHT,this.MINES, sb.toString());
+        
+        engine.flagSquare(0,0, true);
+        engine.flagSquare(1,1, true);
+        engine.flagSquare(1,2, true);
+        engine.flagSquare(6,2, true);
+        engine.flagSquare(4,3, true);
+        engine.flagSquare(9,3, true);
+        engine.flagSquare(7,4, true);
+        engine.flagSquare(8,4, true);
+        engine.flagSquare(1,5, true);
+        engine.flagSquare(1,6, true);
+        engine.flagSquare(7,6, true);
+        engine.flagSquare(1,7, true);
+        engine.flagSquare(7,7, true); // not a mine
+        engine.flagSquare(1,8, true);
+        assertTrue(!this.gameOverCalled);
+        
+        this.showGrid();
+        engine.flagSquare(1,9, true);
+        this.showGrid();
+        assertTrue(!this.gameOverCalled);
+                
+    }
     
     private String getMineRepresentation() {
         StringBuilder sb = new StringBuilder(this.WIDTH*this.HEIGHT);
@@ -272,9 +348,7 @@ public class MiinaEngineTest implements IEngineObserver {
         }
         System.out.println();
     }
-    
-    
-    
+        
     private void showGrid() {
         String repr = engine.getGridRepresentation();
         for(int y=0;y<engine.getHeight(); ++y) {

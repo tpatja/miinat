@@ -7,6 +7,7 @@ import miinat.engine.Square;
 
 
 /**
+ * Class implementing minesweeper game logic
  *
  * @author tpatja
  */
@@ -20,22 +21,83 @@ public class MiinaEngine {
     private ArrayList<Square> squares;
     
     /**
-     * Contructor
+     * Constructor
      * 
-     * @param width    Width of minefield
-     * @param height   Height of minefield
-     * @param nMines   Number of mines
      * @param observer Observer interface that will receive events
      */
-    public MiinaEngine(int width, int height, int nMines, IEngineObserver observer)
+    public MiinaEngine(IEngineObserver observer)
     {
-        this.width = width;
-        this.height = height;
-        this.nMines = nMines;
         this.gameOver = false;
         this.observer = observer;
         this.squares = new ArrayList<>();
 
+    }
+
+    /** (Re)Start game with given parameters.
+     * 
+     * @param width   Width of minefield
+     * @param height  Height of minefield
+     * @param nMines  Amount of mines
+     */
+    public void startGame(int width, int height, int nMines) {
+        this.width = width;
+        this.height = height;
+        this.nMines = nMines;
+        this.initSquares();
+        this.randomlyPlaceMines();
+        observer.gameStarted();
+    }
+
+    /** (Re)Start game with given level
+     * 
+     * @param l Level describing amount of mines, width and height
+     */
+    public void startGame(Level l) {
+        this.setLevelParams(l);
+        this.initSquares();
+        this.randomlyPlaceMines();
+        observer.gameStarted();
+    }
+
+    /**
+     * (Re)Start game with mines represented by given string
+     * 
+     * Format: '*' means mine, '-' means no mine.
+     * Remarks:
+     *         data length must be equal to amount of squares.
+     *         amount of mines must be equal to this.nMines
+     *         
+     * @param mineData 
+     */
+    public void startGame(int width, int height, int nMines, String mineData) {
+        this.width = width;
+        this.height = height;
+        this.nMines = nMines;
+        this.initSquares();
+        
+        assert mineData.length() == this.squares.size();
+        int givenMineCount=0;
+        for(int i=0; i<mineData.length(); ++i) {
+            if(mineData.charAt(i) == '*')
+                ++givenMineCount;
+        }
+        // TODO: maybe OK to mutate this.nMines in this case?
+        assert givenMineCount == this.nMines;
+        
+        for(int y=0; y<this.getHeight(); ++y) {
+            for(int x=0; x<this.getWidth(); ++x) {
+                int idx = y * this.getWidth() + x;
+                this.squareAt(x,y).hasMine = mineData.charAt(idx) == '*';
+            }
+        }
+        observer.gameStarted();
+    }
+
+    /**
+     * Helper for avoiding repetition
+     */
+    private void initSquares() {
+        this.squares.clear();
         for(int y=0; y < this.height; ++y) {
             for(int x=0; x < this.width; ++x) {
                 this.squares.add(new Square(x,y));
@@ -43,13 +105,18 @@ public class MiinaEngine {
         }
 
     }
-
+    
+    
     public int getHeight() {
         return this.height;
     }
     
     public int getWidth() {
         return this.width;
+    }
+    
+    public int getMineCount() {
+        return this.nMines;
     }
     
     public boolean isGameOver() {
@@ -72,74 +139,52 @@ public class MiinaEngine {
         return this.squares.get(idx);
     }
     
+    
     /**
-     * (Re)Initialize engine with randomly placed mines
-     */    
-    public void init() {
-        for(int i=0; i < this.squares.size(); ++i)
-            this.squares.get(i).reset();
-        
-        this.randomlyPlaceMines();
-        observer.gameStarted();
+     * Pre-defined levels that define width, height and mine count
+     */
+    public enum Level {
+        Beginner,
+        Intermediate,
+        Advanced
     }
-
     
-    public void init(int width, int height, int nMines) {
-        this.width = width;
-        this.height = height;
-        this.nMines = nMines;
-        this.squares.clear();
-        for(int y=0; y < this.height; ++y) {
-            for(int x=0; x < this.width; ++x) {
-                this.squares.add(new Square(x,y));
-            }
+    /**
+     * Set width, height and mine count based on given level
+     * @param l given level
+     */
+    private void setLevelParams(Level l) {
+        switch(l) {
+            case Beginner:
+                this.width = 9;
+                this.height = 9;
+                this.nMines = 10;
+                break;
+            case Intermediate:
+                this.width = 16;
+                this.height = 16;
+                this.nMines = 40;
+                break;
+            case Advanced:
+                this.width = 30;
+                this.height = 16;
+                this.nMines = 99;
+                break;
         }
-        this.randomlyPlaceMines();
-        observer.gameStarted();
     }
-    
+      
     
     private void randomlyPlaceMines() {
         for(int i=0; i < this.nMines; i++) {
             Square s = null;
             while(true) {
                 s = this.getRandomSquare();
-
                 if(!s.hasMine) {
                     s.hasMine = true;
                     break;
                 }
             }
         }
-    }
-    
-    /**
-     * Initialize engine with mines represented by given string
-     * 
-     * Format: '*' means mine, '-' means no mine.
-     * Remarks:
-     *         data length must be equal to amount of squares.
-     *         amount of mines must be equal to this.nMines
-     *         
-     * @param mineData 
-     */
-    public void init(String mineData) {
-        assert mineData.length() == this.squares.size();
-        int givenMineCount=0;
-        for(int i=0; i<mineData.length(); ++i) {
-            if(mineData.charAt(i) == '*')
-                ++givenMineCount;
-        }
-        // TODO: maybe OK to mutate this.nMines in this case?
-        assert givenMineCount == this.nMines;
-        
-        for(int y=0; y<this.getHeight(); ++y) {
-            for(int x=0; x<this.getWidth(); ++x) {
-                int idx = y * this.getWidth() + x;
-                this.squareAt(x,y).hasMine = mineData.charAt(idx) == '*';
-            }
-        }
-        observer.gameStarted();
     }
     
 
@@ -152,7 +197,9 @@ public class MiinaEngine {
     public void uncoverSquare(int x, int y) {
         assert !this.gameOver;
         Square s = this.squareAt(x, y);
-        if(s == null) // ignore invalid co-ordinates
+        
+        // ignore invalid co-ordinates and already uncovered squares
+        if(s == null || !s.isCovered()) 
             return;
         
         s.surroundingMines = this.countSurroundingMines(s);
@@ -174,6 +221,25 @@ public class MiinaEngine {
                 }
             }
         }
+    }
+    
+    /**
+     * Mark a square as flagged.
+     * 
+     * If it results in all mines being flagged, game is won
+     * 
+     * @param x x-coordinate of square to mark as flagged
+     * @param y y-coordinate of square to mark as flagged
+     */
+    public void flagSquare(int x, int y, boolean flagged) {
+        Square s = this.squareAt(x, y);
+        
+        if(s == null || !s.isCovered()) 
+            return;
+        s.isFlagged = flagged;
+        if(flagged && this.allMinesFlagged())
+            this.observer.gameOver(true);
+        
     }
     
     /**
@@ -238,7 +304,10 @@ public class MiinaEngine {
                 Square s = this.squareAt(x, y);
                 char ch;
                 if(s.isCovered()) {
-                    sb.append("#");
+                    if(s.isFlagged)
+                        sb.append("F");
+                    else
+                        sb.append("#");
                 }
                 else {
                     if(s.hasMine) {
@@ -270,6 +339,23 @@ public class MiinaEngine {
             }
         }
         return true;
+    }
+    
+    /**
+     * Check if all mines are flagged
+     *  (winning condition)
+     * @return true if all are flagged
+     */
+    private boolean allMinesFlagged() {
+        int nFlagged=0;
+        for(int y=0;y<this.getHeight(); ++y) {
+            for(int x=0; x<this.getWidth(); ++x) {
+                Square s = this.squareAt(x, y);
+                if(s.isFlagged && s.hasMine)
+                    ++nFlagged;
+            }
+        }
+        return nFlagged == this.nMines;
     }
 
 }
