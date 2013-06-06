@@ -86,7 +86,7 @@ implements
             }
         }
         
-        this.squares = null; // force gc
+        this.squares = null;
         this.squares = new UiSquare[engine.getWidth()][engine.getHeight()];
         
         int w = engine.getWidth()*20 + 10;
@@ -159,6 +159,11 @@ implements
         System.out.println("gameOver: won=" + won);
         this.gameState = won ? GameState.GameWon : GameState.GameLost;
         repaint();
+    }
+    
+    @Override
+    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+        System.out.println("game won in " + seconds + " seconds");
     }
     
     /**

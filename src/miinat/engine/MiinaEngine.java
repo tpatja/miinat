@@ -2,6 +2,7 @@ package miinat.engine;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Date;
 
 import miinat.engine.Square;
 
@@ -19,6 +20,8 @@ public class MiinaEngine {
     private boolean gameOver;
     private IEngineObserver observer;
     private ArrayList<Square> squares;
+    private Date gameStarted;
+    private Level level;
     
     /**
      * Constructor
@@ -43,7 +46,8 @@ public class MiinaEngine {
         this.width = width;
         this.height = height;
         this.nMines = nMines;
-        this.initSquares();
+        this.level = Level.Custom;
+        this.initState();
         this.randomlyPlaceMines();
         observer.gameStarted();
     }
@@ -53,9 +57,11 @@ public class MiinaEngine {
      * @param l Level describing amount of mines, width and height
      */
     public void startGame(Level l) {
+        assert(l != Level.Custom); // custom is a pseudo level
         this.setLevelParams(l);
-        this.initSquares();
+        this.initState();
         this.randomlyPlaceMines();
+        
         observer.gameStarted();
     }
 
@@ -73,15 +79,38 @@ public class MiinaEngine {
         this.width = width;
         this.height = height;
         this.nMines = nMines;
-        this.initSquares();
+        this.level = Level.Custom;
+        this.initState();
+        this.setMinesFromString(mineData);
+        observer.gameStarted();
+    }
+
+    /**
+     * (Re)Start game with mines represented by given string
+     * 
+     * Format: '*' means mine, '-' means no mine.
+     * Remarks:
+     *         data length must be equal to amount of squares.
+     *         amount of mines must be equal to this.nMines
+     *         
+     * @param mineData 
+     */
+    public void startGame(Level level, String mineData) {
+        this.setLevelParams(level);
+        this.initState();
+        this.setMinesFromString(mineData);
         
+        observer.gameStarted();
+    }
+
+    
+    private void setMinesFromString(String mineData) {
         assert mineData.length() == this.squares.size();
         int givenMineCount=0;
         for(int i=0; i<mineData.length(); ++i) {
             if(mineData.charAt(i) == '*')
                 ++givenMineCount;
         }
-        // TODO: maybe OK to mutate this.nMines in this case?
         assert givenMineCount == this.nMines;
         
         for(int y=0; y<this.getHeight(); ++y) {
@@ -90,20 +119,20 @@ public class MiinaEngine {
                 this.squareAt(x,y).hasMine = mineData.charAt(idx) == '*';
             }
         }
-        observer.gameStarted();
     }
-
     /**
      * Helper for avoiding repetition
      */
-    private void initSquares() {
+    private void initState() {
         this.squares.clear();
         for(int y=0; y < this.height; ++y) {
             for(int x=0; x < this.width; ++x) {
                 this.squares.add(new Square(x,y));
             }
         }
-
+        this.gameOver = false;
+        this.gameStarted = null;
+        this.gameStarted = new Date();
     }
     
     
@@ -146,7 +175,8 @@ public class MiinaEngine {
     public enum Level {
         Beginner,
         Intermediate,
-        Advanced
+        Advanced,
+        Custom
     }
     
     /**
@@ -154,6 +184,7 @@ public class MiinaEngine {
      * @param l given level
      */
     private void setLevelParams(Level l) {
+        assert l != Level.Custom;
         switch(l) {
             case Beginner:
                 this.width = 9;
@@ -171,6 +202,7 @@ public class MiinaEngine {
                 this.nMines = 99;
                 break;
         }
+        this.level = l;
     }
       
     
@@ -210,8 +242,7 @@ public class MiinaEngine {
         }   
         else if(this.allNonMinesUncovered()) {
             System.out.println("all non-mines uncovered");
-            this.gameOver = true;
-            this.observer.gameOver(true);
+            this.handleWin();
         } 
         else {
             if(s.surroundingMines == 0) {
@@ -220,6 +251,15 @@ public class MiinaEngine {
                         this.uncoverSquare(neighbor.x, neighbor.y);
                 }
             }
+        }
+    }
+    
+    private void handleWin() {
+        this.gameOver = true;
+        this.observer.gameOver(true);
+        if(this.level != Level.Custom) {
+            int secsElapsed = (int) (new Date().getTime() - this.gameStarted.getTime())/1000;
+            this.observer.gameWinningStats(this.level, secsElapsed);
         }
     }
     
@@ -238,7 +278,7 @@ public class MiinaEngine {
             return;
         s.isFlagged = flagged;
         if(flagged && this.allMinesFlagged())
-            this.observer.gameOver(true);
+            this.handleWin();
         
     }
     

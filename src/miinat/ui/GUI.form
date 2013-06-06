@@ -33,9 +33,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Intermediate"/>
               </Properties>
-              <AccessibilityProperties>
-                <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Intermediate"/>
-              </AccessibilityProperties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="intermediateActionPerformed"/>
               </Events>

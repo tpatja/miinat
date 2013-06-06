@@ -28,5 +28,7 @@ Pelaajan toiminnot:
   * keskitaso: 16x16 ruudukko, 40 miinaa
   * vaikea: 30x16, 99 miinaa
 * high score seuranta
- * jos pelaaja saa koko ruudukon miinat paikannettua, tallennetaan pelaajan nimi, ruudukon koko, pvm ja ratkomiseen käytetty aika
- * valikosta voi aukaista high score dialogin, josta näkee listan max 10:stä parhaasta tuloksesta
+ * jos pelaaja saa koko ruudukon miinat paikannettua, tallennetaan pelaajan nimi, 
+   vaikeustaso, pvm ja ratkomiseen käytetty aika
+ * valikosta voi aukaista high score dialogin, josta näkee listan max 10:stä 
+   parhaasta tuloksesta jokaiselle vaikeustasolle

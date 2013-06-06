@@ -19,3 +19,6 @@
 5.6.2013
 * 2h koodausta: tuki ruutujen merkkamiselle, refaktorointia, testejä, 
   javadoc kommentointia, aihemäärittelyn päivitys
+6.6.2013
+* 3h koodausta: engineen tuki peliajan mittaamiselle ja signaloinnille, 
+  refaktorointia, lisää testejä, testien jako useampaan luokkaan, siivousta

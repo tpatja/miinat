@@ -17,6 +17,7 @@ import java.util.Scanner;
 public class ConsoleUi implements IEngineObserver {
     
     private MiinaEngine engine;
+
     
     private enum GameState {
         Initial,
@@ -45,6 +46,11 @@ public class ConsoleUi implements IEngineObserver {
     public void gameOver(boolean won) {
         this.state = (won) ? GameState.GameWon : GameState.GameLost;
         update();
+    }
+    
+    @Override
+    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+        System.out.println("game won in " + seconds + " seconds");
     }
     
     private void update() {
