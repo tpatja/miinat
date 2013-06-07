@@ -51,23 +51,24 @@ public class HighScoreManager implements IEngineObserver {
     private void loadEntries() {
         
         try {
-        
             FileInputStream in = new FileInputStream(this.FILENAME);
             ObjectInputStream is = new ObjectInputStream(in);
-            for(HighScoreEntry loadedEntry = (HighScoreEntry)is.readObject(); 
-                    loadedEntry != null;
-                    loadedEntry = (HighScoreEntry)is.readObject()) {
+            for(;;) {
+                HighScoreEntry loadedEntry = (HighScoreEntry)is.readObject();
+                if(loadedEntry == null)
+                    break;
                 System.out.println("got one");
                 entries.add(loadedEntry);
             }
-                    
-            ;
+            is.close();
+            in.close();
         }
         catch (ClassNotFoundException | IOException ex) {
             System.err.println(ex.getMessage());
         }
         finally {
             System.out.println("entries loaded");
+            
         }
 
     }
@@ -78,11 +79,14 @@ public class HighScoreManager implements IEngineObserver {
     private void saveEntries() {
         
         try {
+            FileOutputStream f = new FileOutputStream(this.FILENAME);
+            ObjectOutput s = new ObjectOutputStream(f);
+                
             for(HighScoreEntry entry : this.entries) {
-                FileOutputStream f = new FileOutputStream(this.FILENAME);
-                ObjectOutput s = new ObjectOutputStream(f);
                 s.writeObject(entry);
             }
+            s.close();
+            f.close();
         }
         catch(IOException e) {
             System.out.println("Failed to persist" + e.getMessage());
@@ -91,7 +95,6 @@ public class HighScoreManager implements IEngineObserver {
             System.out.println("entries saved");
         }
 
-    
     }
     
     /**

@@ -41,8 +41,6 @@ public class HighScoreEntry implements Externalizable {
         while( (b = in.read()) != -1) {
             data += (char)b;
         }
-        //System.out.println("readExternal, plain data=" + data);
-        //System.out.println("rotted=" + this.rot13(data));
         this.fromString(this.rot13(data));
     }
     
@@ -51,17 +49,11 @@ public class HighScoreEntry implements Externalizable {
     public String toString() {
         String s = this.level.ordinal() + "," + this.time 
                 + "," + this.date.getTime() + "," + this.name;
-        //System.out.println(s);
         return s;
     }
     
     private void fromString(String data) {
         String tokens[] = data.split(",");
-        
-        for(String token : tokens) {
-            System.out.println("token " + token);
-        }
-        
         this.level = MiinaEngine.Level.values()[Integer.parseInt(tokens[0])];
         this.time = Integer.parseInt(tokens[1]);
         this.date = new Date( Long.parseLong(tokens[2]) );

@@ -22,3 +22,5 @@
 6.6.2013
 * 3h koodausta: engineen tuki peliajan mittaamiselle ja signaloinnille, 
   refaktorointia, lisää testejä, testien jako useampaan luokkaan, siivousta
+7.6.2013
+* 4h high score seurannan toteutus, UI parannuksia, testejä, javadoc etc

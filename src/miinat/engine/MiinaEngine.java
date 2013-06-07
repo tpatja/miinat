@@ -52,6 +52,10 @@ public class MiinaEngine {
         addObserver(this.highScoreManager);
     }
     
+    public HighScoreManager getHighScoreManager() {
+        return this.highScoreManager;
+    }
+    
     
     /** (Re)Start game with given parameters.
      * 

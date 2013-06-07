@@ -50,6 +50,7 @@ implements
     private GameState gameState;
     private MiinaEngine.Level level;
     private Timer timeUpdater;
+    private JFrame highScoreDialog;
     
     public enum GameState {
         Initial,
@@ -62,6 +63,7 @@ implements
      * Creates new form GUI
      */
     public GUI() {
+        super("Miinat");
         initComponents();
         // disable user resizing so grid will always be visible
         this.setResizable(false); 
@@ -220,6 +222,7 @@ implements
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        highScoreMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -312,6 +315,14 @@ implements
 
         jMenu2.setText("Help");
 
+        highScoreMenuItem.setText("High scores");
+        highScoreMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                highScoreMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu2.add(highScoreMenuItem);
+
         aboutMenuItem.setText("About");
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -374,6 +385,18 @@ implements
     private void topButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_topButtonActionPerformed
         engine.startGame(this.level);
     }//GEN-LAST:event_topButtonActionPerformed
+
+    private void highScoreMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highScoreMenuItemActionPerformed
+        if(this.highScoreDialog == null) {
+            this.highScoreDialog = new HighScoreDialog(engine.getHighScoreManager());
+            this.highScoreDialog.setLocation(
+                    new java.awt.Point((int)this.getLocation().getX() + this.getWidth(), 
+                                       (int)this.getLocation().getY()) 
+                    );
+        }
+            
+        this.highScoreDialog.show();
+    }//GEN-LAST:event_highScoreMenuItemActionPerformed
 
     
     /**
@@ -479,6 +502,7 @@ implements
     private javax.swing.JMenuItem beginner;
     private javax.swing.JLabel durationLabel;
     private javax.swing.JPanel gridPanel;
+    private javax.swing.JMenuItem highScoreMenuItem;
     private javax.swing.JMenuItem intermediate;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
