@@ -8,16 +8,17 @@ import java.awt.event.*;
 
 /**
  *
- * @author Teemu Patja <tp@iki.fi>
+ * Swing UI (Main window)
+ * 
  */
 public class GUI 
 extends 
         JFrame 
 implements
         MouseListener,
-        miinat.engine.IEngineObserver {
+        miinat.engine.IEngineObserver,
+        miinat.engine.HighScoreNameProvider {
 
-    
     
     private class UiSquare {
         
@@ -48,6 +49,7 @@ implements
     private UiSquare[][] squares;
     private GameState gameState;
     private MiinaEngine.Level level;
+    private Timer timeUpdater;
     
     public enum GameState {
         Initial,
@@ -64,6 +66,7 @@ implements
         // disable user resizing so grid will always be visible
         this.setResizable(false); 
         engine = new MiinaEngine(this);
+        engine.initHighScoreManager(this);
         this.gameState = GameState.Initial;
         this.level = MiinaEngine.Level.Beginner;
         this.engine.startGame(this.level);
@@ -74,14 +77,13 @@ implements
      * 
      */
     private void initUi() {
-        
-        
+                
         boolean isReinit = false;
         if(this.squares != null) {
             isReinit = true;
             for(int x=0; x<this.squares.length; ++x) {
                 for(int y=0; y<this.squares[x].length; ++y) {
-                    remove(this.squares[x][y].label);
+                    this.gridPanel.remove(this.squares[x][y].label);
                 }
             }
         }
@@ -89,8 +91,12 @@ implements
         this.squares = null;
         this.squares = new UiSquare[engine.getWidth()][engine.getHeight()];
         
-        int w = engine.getWidth()*20 + 10;
-        int h = engine.getHeight()*20 + 10 + this.getJMenuBar().getHeight();
+        final int gapSpace = 10;
+        final int squareSide = 20;
+        int w = engine.getWidth()*squareSide + gapSpace;
+        int h = engine.getHeight()*squareSide + gapSpace 
+                + this.getJMenuBar().getHeight() +
+                  this.topPanel.getHeight();
         setSize(w, h);
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
@@ -101,7 +107,7 @@ implements
                 label.setBorder( BorderFactory.createLineBorder(Color.BLACK) );
                 label.addMouseListener(this);
                 this.squares[x][y] = new UiSquare(engine.squareAt(x, y), label);
-                add(label);
+                this.gridPanel.add(label);
             }
         }
         
@@ -111,7 +117,7 @@ implements
             this.getContentPane().validate();
         }
         GridLayout gridLayout = new GridLayout(engine.getHeight(), engine.getWidth());
-        setLayout(gridLayout);
+        this.gridPanel.setLayout(gridLayout);
         gridLayout.addLayoutComponent(null, this);
         
     }
@@ -139,7 +145,7 @@ implements
                 }
             }
         }
-        this.repaint();
+        this.gridPanel.repaint();
     }
     
     @Override
@@ -151,13 +157,31 @@ implements
                 this.squares[x][y].square = engine.squareAt(x, y);
             }
         }
+        this.topButton.setText(":)");
+        if(this.timeUpdater != null)
+            this.timeUpdater.stop();
+        this.timeUpdater = null;
+        this.timeUpdater = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                durationLabel.setText(Integer.toString(engine.timeElapsedInSeconds()));
+            }
+        });
+        this.timeUpdater.start();
+        
         updateUi();
     }
     
     @Override
     public void gameOver(boolean won) {
         System.out.println("gameOver: won=" + won);
+        this.timeUpdater.stop();
+        this.timeUpdater = null;
         this.gameState = won ? GameState.GameWon : GameState.GameLost;
+        if(won)
+            this.topButton.setText(":D");
+        else
+            this.topButton.setText(":X");
         repaint();
     }
     
@@ -165,6 +189,13 @@ implements
     public void gameWinningStats(MiinaEngine.Level level, int seconds) {
         System.out.println("game won in " + seconds + " seconds");
     }
+    
+    @Override
+    public String getNameForHighScore() {
+        return JOptionPane.showInputDialog(this, 
+                "You have made the high score list. Please enter your name");
+    }
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -175,6 +206,10 @@ implements
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        topPanel = new javax.swing.JPanel();
+        durationLabel = new javax.swing.JLabel();
+        topButton = new javax.swing.JButton();
+        gridPanel = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -185,9 +220,47 @@ implements
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        durationLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+
+        topButton.setText(":)");
+        topButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                topButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout topPanelLayout = new javax.swing.GroupLayout(topPanel);
+        topPanel.setLayout(topPanelLayout);
+        topPanelLayout.setHorizontalGroup(
+            topPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, topPanelLayout.createSequentialGroup()
+                .addComponent(topButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 208, Short.MAX_VALUE)
+                .addComponent(durationLabel)
+                .addContainerGap())
+        );
+        topPanelLayout.setVerticalGroup(
+            topPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(durationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, topPanelLayout.createSequentialGroup()
+                .addComponent(topButton)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout gridPanelLayout = new javax.swing.GroupLayout(gridPanel);
+        gridPanel.setLayout(gridPanelLayout);
+        gridPanelLayout.setHorizontalGroup(
+            gridPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        gridPanelLayout.setVerticalGroup(
+            gridPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 211, Short.MAX_VALUE)
+        );
 
         jMenu1.setText("Game");
 
@@ -217,7 +290,6 @@ implements
             }
         });
         jMenu1.add(intermediate);
-        intermediate.getAccessibleContext().setAccessibleName("Intermediate");
 
         advanced.setText("Advanced");
         advanced.addActionListener(new java.awt.event.ActionListener() {
@@ -240,13 +312,13 @@ implements
 
         jMenu2.setText("Help");
 
-        jMenuItem1.setText("About");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        aboutMenuItem.setText("About");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                aboutMenuItemActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem1);
+        jMenu2.add(aboutMenuItem);
 
         jMenuBar1.add(jMenu2);
 
@@ -256,21 +328,25 @@ implements
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(topPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(gridPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 279, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(topPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(gridPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
         JOptionPane.showMessageDialog(this, 
                 "Miinat\n\nMinesweeper clone\nAuthor: Teemu Patja <tp@iki.fi>");
                 
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
 
     private void newGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameActionPerformed
         engine.startGame(this.level);
@@ -294,6 +370,10 @@ implements
         this.level = MiinaEngine.Level.Advanced;
         this.engine.startGame(this.level);
     }//GEN-LAST:event_advancedActionPerformed
+
+    private void topButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_topButtonActionPerformed
+        engine.startGame(this.level);
+    }//GEN-LAST:event_topButtonActionPerformed
 
     
     /**
@@ -394,17 +474,21 @@ implements
     }
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem advanced;
     private javax.swing.JMenuItem beginner;
+    private javax.swing.JLabel durationLabel;
+    private javax.swing.JPanel gridPanel;
     private javax.swing.JMenuItem intermediate;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JButton topButton;
+    private javax.swing.JPanel topPanel;
     // End of variables declaration//GEN-END:variables
 
 

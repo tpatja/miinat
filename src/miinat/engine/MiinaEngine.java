@@ -1,10 +1,7 @@
 package miinat.engine;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Date;
-
-import miinat.engine.Square;
 
 
 /**
@@ -18,10 +15,12 @@ public class MiinaEngine {
     private int width;
     private int height;
     private boolean gameOver;
-    private IEngineObserver observer;
+    private ArrayList<IEngineObserver> observers;
     private ArrayList<Square> squares;
     private Date gameStarted;
     private Level level;
+    private HighScoreManager highScoreManager;
+    
     
     /**
      * Constructor
@@ -31,11 +30,29 @@ public class MiinaEngine {
     public MiinaEngine(IEngineObserver observer)
     {
         this.gameOver = false;
-        this.observer = observer;
+        this.observers = new ArrayList<>();
+        this.observers.add(observer);
         this.squares = new ArrayList<>();
 
     }
 
+    public void addObserver(IEngineObserver observer) {
+        if(!this.observers.contains(observer))
+            this.observers.add(observer);
+    }
+    
+    /**
+     * Initialize high score tracking
+     * 
+     * @param nameProvider interface for getting current player's name in
+     *  case a new high score is detected
+     */
+    public void initHighScoreManager(HighScoreNameProvider nameProvider) {
+        this.highScoreManager = new HighScoreManager(nameProvider, true);
+        addObserver(this.highScoreManager);
+    }
+    
+    
     /** (Re)Start game with given parameters.
      * 
      * @param width   Width of minefield
@@ -49,7 +66,7 @@ public class MiinaEngine {
         this.level = Level.Custom;
         this.initState();
         this.randomlyPlaceMines();
-        observer.gameStarted();
+        this.notifyGameStarted();
     }
 
     /** (Re)Start game with given level
@@ -61,8 +78,7 @@ public class MiinaEngine {
         this.setLevelParams(l);
         this.initState();
         this.randomlyPlaceMines();
-        
-        observer.gameStarted();
+        this.notifyGameStarted();
     }
 
     /**
@@ -82,7 +98,7 @@ public class MiinaEngine {
         this.level = Level.Custom;
         this.initState();
         this.setMinesFromString(mineData);
-        observer.gameStarted();
+        this.notifyGameStarted();
     }
 
     /**
@@ -100,7 +116,7 @@ public class MiinaEngine {
         this.initState();
         this.setMinesFromString(mineData);
         
-        observer.gameStarted();
+        this.notifyGameStarted();
     }
 
     
@@ -159,16 +175,14 @@ public class MiinaEngine {
         }
         return null;
     }
-    
-    
+        
     private Square getRandomSquare() {
         if(this.squares.isEmpty())
             return null;
         int idx = (int)(Math.random() * (this.squares.size()-1));
         return this.squares.get(idx);
     }
-    
-    
+        
     /**
      * Pre-defined levels that define width, height and mine count
      */
@@ -238,7 +252,7 @@ public class MiinaEngine {
         
         if(s.hasMine) {
             this.gameOver = true;
-            this.observer.gameOver(false);
+            this.notifyGameOver(false);
         }   
         else if(this.allNonMinesUncovered()) {
             System.out.println("all non-mines uncovered");
@@ -254,13 +268,41 @@ public class MiinaEngine {
         }
     }
     
-    private void handleWin() {
-        this.gameOver = true;
-        this.observer.gameOver(true);
-        if(this.level != Level.Custom) {
-            int secsElapsed = (int) (new Date().getTime() - this.gameStarted.getTime())/1000;
-            this.observer.gameWinningStats(this.level, secsElapsed);
+    private void notifyGameOver(boolean won) {
+        for(IEngineObserver observer : this.observers) {
+            observer.gameOver(won);
         }
+    }
+    
+    private void notifyGameStarted() {
+        for(IEngineObserver observer : this.observers) {
+            observer.gameStarted();
+        }
+    }
+    
+    private void notifyGameWinningStats(MiinaEngine.Level level, int seconds) {
+        for(IEngineObserver observer : this.observers) {
+            observer.gameWinningStats(level, seconds);
+        }
+    }
+    
+    
+    private void handleWin() {
+        this.notifyGameOver(true);
+        if(this.level != Level.Custom) {
+            this.notifyGameWinningStats(this.level, this.timeElapsedInSeconds());
+        }
+        this.gameOver = true;
+    }
+    
+    /**
+     * 
+     * @return Time elapsed playing this game. -1 if no game active
+     */
+    public int timeElapsedInSeconds() {
+        if(this.gameOver)
+            return -1;
+        return (int) (new Date().getTime() - this.gameStarted.getTime())/1000;
     }
     
     /**
