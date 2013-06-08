@@ -96,7 +96,7 @@ public class HighScoreManagerTest implements IHighScoreNameProvider {
     
     @Test
     public void testBetterTimeDropsExistingWorstTimeWhenMaxEntriesIsReached() {
-        HighScoreManager man = new HighScoreManager(this, true);
+        HighScoreManager man = new HighScoreManager(this, false);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
@@ -127,6 +127,36 @@ public class HighScoreManagerTest implements IHighScoreNameProvider {
         assertFalse( bigOneFound );
     }
     
+    @Test
+    public void testCreateHighScoreData() {
+        
+        return; // this is just a tool to create some test data in miinat.dat
+        /*
+        HighScoreManager man = new HighScoreManager(this, true);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 3245);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
+        
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 45);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 55);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 25);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 75);
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
+        
+        
+        man.gameWinningStats(MiinaEngine.Level.Intermediate, 751);
+        man.gameWinningStats(MiinaEngine.Level.Intermediate, 791);
+        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
+        
+        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
+        man.gameWinningStats(MiinaEngine.Level.Advanced, 98343);
+        
+        man.gameWinningStats(MiinaEngine.Level.Beginner, 52);
+        */
+        
+    }
     
     @Test
     public void testEncryptedSaveRestore() {

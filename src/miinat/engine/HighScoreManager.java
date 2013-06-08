@@ -79,14 +79,13 @@ public class HighScoreManager implements IEngineObserver {
                 HighScoreEntry entry = loadSingleEntry(is);
                 if(entry == null)
                     break;
-                System.out.println("got one");
                 entries.add(entry);
             }
             is.close();
             in.close();
         }
         catch (Exception ex) {
-            System.err.println(ex.getMessage());
+            System.err.println("loadEntries: " + ex.getMessage());
         }
         finally {
             System.out.println("entries loaded");
@@ -133,6 +132,7 @@ public class HighScoreManager implements IEngineObserver {
         
         if(this.entries.isEmpty())
             return;
+        
         
         boolean backupOk = false;
         try {
@@ -243,13 +243,15 @@ public class HighScoreManager implements IEngineObserver {
     public void gameWinningStats(MiinaEngine.Level level, int seconds) {
         
         if(this.makesHighScore(level, seconds)) {
+            
             this.insertEntry( new HighScoreEntry(level,
                 seconds, 
                 new Date(), 
-                this.nameProvider.getNameForHighScore()) );
-            
+                this.nameProvider.getNameForHighScore() ) );
+
             if(this.autoPersist)
                 this.saveEntries();
+
         }
     }
     
@@ -259,6 +261,14 @@ public class HighScoreManager implements IEngineObserver {
      * @param entry high score entry to add
      */
     private void insertEntry(HighScoreEntry entry) {
+        
+        if(Collections.frequency(entries, this) != 0) { 
+            //disallow duplicates. this exists only for unit tests
+            // it will never happen in real use
+            System.out.println("ignoring attempt to insert duplicate entry");
+            return;
+        }
+        
         List<HighScoreEntry> levelEntries = this.getEntries(entry.level);
         assert( levelEntries.size() <= this.MAX_ENTRIES_PER_LEVEL );
         if(levelEntries.size() == this.MAX_ENTRIES_PER_LEVEL) {
@@ -279,6 +289,7 @@ public class HighScoreManager implements IEngineObserver {
      */
     private boolean makesHighScore(MiinaEngine.Level level, int seconds) {
         List<HighScoreEntry> levelEntries = getEntries(level);
+        
         if(levelEntries.size() < this.MAX_ENTRIES_PER_LEVEL)
             return true;
         HighScoreEntry worst = Collections.max(levelEntries,

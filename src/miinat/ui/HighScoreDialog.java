@@ -23,15 +23,12 @@ public class HighScoreDialog extends javax.swing.JFrame {
                 if(!e.getValueIsAdjusting()) {
                     switch(levelChoiceList.getSelectedValue().toString()) {
                         case "Beginner":
-                            System.out.println("beginner selected");
                             updateScoreList(MiinaEngine.Level.Beginner);
                             break;
                         case "Intermediate":
-                            System.out.println("intermediate selected");
                             updateScoreList(MiinaEngine.Level.Intermediate);
                             break;
                         case "Advanced":
-                            System.out.println("advanced selected");
                             updateScoreList(MiinaEngine.Level.Advanced);
                             break;
                     }
