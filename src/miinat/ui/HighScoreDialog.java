@@ -11,12 +11,12 @@ import miinat.engine.MiinaEngine;
 /**
  * Swing dialog for displaying high scores
  */
-public class HighScoreDialog extends javax.swing.JFrame {
+public class HighScoreDialog extends javax.swing.JDialog {
 
     private miinat.engine.HighScoreManager highScoreManager;
     
     public HighScoreDialog(miinat.engine.HighScoreManager highScoreManager) {
-        super("Miinat high scores");
+        this.setTitle("Miinat high scores");
         this.highScoreManager = highScoreManager;
         initComponents();
         this.levelChoiceList.addListSelectionListener( new ListSelectionListener() {

@@ -50,7 +50,7 @@ implements
     private GameState gameState;
     private MiinaEngine.Level level;
     private Timer timeUpdater;
-    private JFrame highScoreDialog;
+    private JDialog highScoreDialog;
     
     public enum GameState {
         Initial,
