@@ -1,3 +1,12 @@
 Minesweeper clone written in Java (university coursework)
 
 https://github.com/tahuomo/Kesalabra/wiki
+
+Building:
+$ ant jar
+
+Running (GUI):
+$ java -jar dist/Miinat.jar
+
+Running (console UI):
+$ java -cp dist/Miinat.jar miinat.ui.ConsoleUi
