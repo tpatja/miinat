@@ -20,7 +20,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 
-public class HighScoreManagerTest implements HighScoreNameProvider {
+public class HighScoreManagerTest implements IHighScoreNameProvider {
     
     public HighScoreManagerTest() {
     }

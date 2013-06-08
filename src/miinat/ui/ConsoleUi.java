@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package miinat.ui;
 
 import miinat.engine.MiinaEngine;
@@ -11,8 +7,7 @@ import java.util.Scanner;
 
 
 /**
- *
- * @author tpatja
+ * A simple console user interface
  */
 public class ConsoleUi implements IEngineObserver {
     
@@ -68,6 +63,9 @@ public class ConsoleUi implements IEngineObserver {
         }
     }
    
+    /**
+     * Draw the grid
+     */
     private void drawBoard() {
         String repr = engine.getGridRepresentation();
         for(int y=0;y<engine.getHeight(); ++y) {
@@ -79,6 +77,9 @@ public class ConsoleUi implements IEngineObserver {
         System.out.println();
     }
     
+    /**
+     * Get input from user
+     */
     private void getInput() {
         while(true) {
             System.out.println("input move>");

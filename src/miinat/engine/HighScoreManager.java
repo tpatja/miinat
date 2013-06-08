@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +36,7 @@ public class HighScoreManager implements IEngineObserver {
     private SecretKey secretKey;
     
     private ArrayList<HighScoreEntry> entries;
-    private HighScoreNameProvider nameProvider;
+    private IHighScoreNameProvider nameProvider;
     private boolean autoPersist;
     
     /**
@@ -48,7 +47,7 @@ public class HighScoreManager implements IEngineObserver {
      * @param autoPersist if true, entries are automatically loaded from disk 
      *  in constructor and saved to disk when created
      */
-    HighScoreManager(HighScoreNameProvider nameProvider, boolean autoPersist) {
+    HighScoreManager(IHighScoreNameProvider nameProvider, boolean autoPersist) {
         this.nameProvider = nameProvider;
         
         try {
@@ -132,7 +131,7 @@ public class HighScoreManager implements IEngineObserver {
      */
     private void saveEntries() {
         
-        if(this.entries.size() == 0)
+        if(this.entries.isEmpty())
             return;
         
         boolean backupOk = false;

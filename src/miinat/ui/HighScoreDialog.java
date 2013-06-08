@@ -4,7 +4,6 @@ import java.util.List;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import miinat.engine.HighScoreEntry;
-import miinat.engine.HighScoreManager;
 import miinat.engine.MiinaEngine;
 
 /**

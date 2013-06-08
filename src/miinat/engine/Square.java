@@ -1,8 +1,7 @@
 package miinat.engine;
 
 /**
- *
- * @author tpatja
+ * Class representing a square on the mine field
  */
 public class Square {
     public boolean hasMine;
@@ -12,7 +11,7 @@ public class Square {
     public int surroundingMines;
 
     /**
-     * Constuctor
+     * Constructor
      * 
      * @param x X-coordinate
      * @param y Y-coordinate
@@ -46,7 +45,7 @@ public class Square {
     }
     
     /**
-     * Resets "visible" fields (all except co-ordinates) to initial state
+     * Resets "visible" fields (all except coordinates) to initial state
      */
     public void reset() {
         this.isFlagged = false;

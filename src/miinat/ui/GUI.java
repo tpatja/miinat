@@ -8,7 +8,7 @@ import java.awt.event.*;
 
 /**
  *
- * Swing UI (Main window)
+ * A Swing graphical user interface (Main window)
  * 
  */
 public class GUI 
@@ -17,7 +17,7 @@ extends
 implements
         MouseListener,
         miinat.engine.IEngineObserver,
-        miinat.engine.HighScoreNameProvider {
+        miinat.engine.IHighScoreNameProvider {
 
     
     private class UiSquare {
@@ -514,6 +514,5 @@ implements
     private javax.swing.JButton topButton;
     private javax.swing.JPanel topPanel;
     // End of variables declaration//GEN-END:variables
-
 
 }

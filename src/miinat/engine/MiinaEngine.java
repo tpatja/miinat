@@ -5,9 +5,7 @@ import java.util.Date;
 
 
 /**
- * Class implementing minesweeper game logic
- *
- * @author tpatja
+ * Class implementing the game logic
  */
 public class MiinaEngine {
 
@@ -36,6 +34,10 @@ public class MiinaEngine {
 
     }
 
+    /**
+     * Add an observer that will be notified of engine events
+     * @param observer
+     */
     public void addObserver(IEngineObserver observer) {
         if(!this.observers.contains(observer))
             this.observers.add(observer);
@@ -47,7 +49,7 @@ public class MiinaEngine {
      * @param nameProvider interface for getting current player's name in
      *  case a new high score is detected
      */
-    public void initHighScoreManager(HighScoreNameProvider nameProvider) {
+    public void initHighScoreManager(IHighScoreNameProvider nameProvider) {
         this.highScoreManager = new HighScoreManager(nameProvider, true);
         addObserver(this.highScoreManager);
     }
@@ -289,7 +291,6 @@ public class MiinaEngine {
             observer.gameWinningStats(level, seconds);
         }
     }
-    
     
     private void handleWin() {
         this.notifyGameOver(true);
