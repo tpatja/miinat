@@ -1,29 +1,40 @@
 package miinat.engine;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.crypto.Cipher;
+import javax.crypto.SealedObject;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
 
 
 /**
  * Class responsible for storing and retrieving high scores.
  * 
- * Serialized entries are obfuscated using using ROT-13 before saving to disk 
- * to make it more difficult for clever users to fake high scores :)
+ * Saved entries are encrypted using using DES to make it more 
+ * difficult for clever users to fake high scores :)
  *
  */
 public class HighScoreManager implements IEngineObserver {
 
     private final String FILENAME="miinat.dat";
     private final int MAX_ENTRIES_PER_LEVEL=10;
+    private final String ENCRYPTION_KEY="A2k0nbaU7MruljxW";
+    private SecretKey secretKey;
     
     private ArrayList<HighScoreEntry> entries;
     private HighScoreNameProvider nameProvider;
@@ -39,6 +50,17 @@ public class HighScoreManager implements IEngineObserver {
      */
     HighScoreManager(HighScoreNameProvider nameProvider, boolean autoPersist) {
         this.nameProvider = nameProvider;
+        
+        try {
+            DESKeySpec desKeySpec = new DESKeySpec(this.ENCRYPTION_KEY.getBytes());
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+            this.secretKey = keyFactory.generateSecret(desKeySpec);
+        }
+        catch( InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException e){
+            System.err.println("Failed to initialize crypto key, "
+                    + "entries will be persisted without encryption");
+            this.secretKey = null;
+        }
         this.entries = new ArrayList<>();
         this.autoPersist = autoPersist;
         if(this.autoPersist)
@@ -54,48 +76,143 @@ public class HighScoreManager implements IEngineObserver {
             FileInputStream in = new FileInputStream(this.FILENAME);
             ObjectInputStream is = new ObjectInputStream(in);
             for(;;) {
-                HighScoreEntry loadedEntry = (HighScoreEntry)is.readObject();
-                if(loadedEntry == null)
+                
+                HighScoreEntry entry = loadSingleEntry(is);
+                if(entry == null)
                     break;
                 System.out.println("got one");
-                entries.add(loadedEntry);
+                entries.add(entry);
             }
             is.close();
             in.close();
         }
-        catch (ClassNotFoundException | IOException ex) {
+        catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
         finally {
             System.out.println("entries loaded");
             
         }
+    }
+    
+    /**
+     * Load a single entry from given input stream
+     * Encryption is used if this.secretKey is non-null
+     * 
+     * @param ois
+     * @return Loaded entry or null
+     */
+    private HighScoreEntry loadSingleEntry(ObjectInputStream ois) {
+        
+        try {
+            if(this.secretKey != null) {
+                SealedObject sealedObject = (SealedObject) ois.readObject();
+                if(sealedObject == null)
+                    return null;
+
+                String algorithmName = sealedObject.getAlgorithm();
+                Cipher cipher = Cipher.getInstance(algorithmName);
+                cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
+
+                return (HighScoreEntry) sealedObject.getObject(cipher);
+            }
+            else {
+                return (HighScoreEntry) ois.readObject();
+            }
+        }
+        catch(Exception e) {
+            return null;
+        }
 
     }
+    
     
     /**
      * Persist entries to disk
      */
     private void saveEntries() {
         
+        if(this.entries.size() == 0)
+            return;
+        
+        boolean backupOk = false;
         try {
-            FileOutputStream f = new FileOutputStream(this.FILENAME);
-            ObjectOutput s = new ObjectOutputStream(f);
+            File f = new File(this.FILENAME);
+            f.renameTo( new File(this.FILENAME + ".bak") );
+        }
+        catch( Exception e ) {
+            System.err.println("Failed to backup highscore file");
+        }
+        finally {
+            backupOk = true;
+        }
+        
+        FileOutputStream fos = null;
+        ObjectOutputStream ous = null;
+        try {
+            fos = new FileOutputStream(this.FILENAME);
+            ous = new ObjectOutputStream(fos);
                 
             for(HighScoreEntry entry : this.entries) {
-                s.writeObject(entry);
+                this.saveSingleEntry(entry, ous);
             }
-            s.close();
-            f.close();
+            if(ous != null)
+                ous.close();
+            if(fos != null)
+                fos.close();
         }
         catch(IOException e) {
-            System.out.println("Failed to persist" + e.getMessage());
+            System.err.println("Failed to persist" + e.getMessage());
+            // roll back
+            try {
+                File f = new File(this.FILENAME + ".bak");
+                f.renameTo( new File(this.FILENAME ) );
+            }
+            catch(Exception e2) {
+                System.err.println(e2.getMessage());
+            }
+            finally {
+                System.out.println("Restored old entries");
+            }
         }
         finally {
             System.out.println("entries saved");
+            if(backupOk) {
+                try {
+                    new File(this.FILENAME + ".bak").delete();
+                }
+                catch(Exception e) {
+                    System.err.println("Failed to remove backup file" +
+                            e.getMessage());    
+                }
+            }
         }
-
     }
+    
+    /**
+     * Save a single entry to given ObjectOutputStream
+     * Encryption is used if this.secretKey is non-null
+     * @param entry entry to save
+     * @param ous 
+     */
+    private void saveSingleEntry(HighScoreEntry entry, ObjectOutputStream ous) {
+        try {
+            if(this.secretKey != null) {
+                Cipher ecipher = Cipher.getInstance("DES");
+                ecipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
+                ous.writeObject( new SealedObject(entry, ecipher) );
+            }
+            else {
+                ous.writeObject(entry);
+            }
+        }
+        catch(Exception e) {
+            System.err.println("Failed to save entry " + entry 
+                    + " " + e.getMessage() );
+        }
+        
+    }
+    
     
     /**
      * Get a sorted list of high score entries for given level

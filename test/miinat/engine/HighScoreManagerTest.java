@@ -1,15 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package miinat.engine;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,13 +13,13 @@ import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.crypto.Cipher;
+import javax.crypto.SealedObject;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
-/**
- *
- * @author Teemu Patja <tp@iki.fi>
- */
+
 public class HighScoreManagerTest implements HighScoreNameProvider {
     
     public HighScoreManagerTest() {
@@ -48,15 +41,6 @@ public class HighScoreManagerTest implements HighScoreNameProvider {
     public void tearDown() {
     }
     
-    @Test
-    public void testCreateEntry() {
-        HighScoreEntry entry = new HighScoreEntry();
-        entry.date = new Date();
-        entry.level = MiinaEngine.Level.Beginner;
-        entry.time = 99;
-        entry.name = "teemu";
-        System.out.println(entry);
-    }
 
     @Test
     public void testAllWinningStatsAreSaved() {
@@ -112,7 +96,7 @@ public class HighScoreManagerTest implements HighScoreNameProvider {
     
     @Test
     public void testBetterTimeDropsExistingWorstTimeWhenMaxEntriesIsReached() {
-        HighScoreManager man = new HighScoreManager(this, false);
+        HighScoreManager man = new HighScoreManager(this, true);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
@@ -124,6 +108,12 @@ public class HighScoreManagerTest implements HighScoreNameProvider {
         man.gameWinningStats(MiinaEngine.Level.Beginner, 25);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 75);
         man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
+        
+        
+        man.gameWinningStats(MiinaEngine.Level.Intermediate, 751);
+        man.gameWinningStats(MiinaEngine.Level.Intermediate, 791);
+        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
+        
         
         man.gameWinningStats(MiinaEngine.Level.Beginner, 52);
         
@@ -138,19 +128,61 @@ public class HighScoreManagerTest implements HighScoreNameProvider {
     }
     
     
-    
-    
     @Test
-    public void testRot13(){
-        String s = "ASDF,foo,123";
-        //System.out.println(s);
-        String s2 = HighScoreEntry.rot13(s);
-        //System.out.println(s2);
-        s2 = HighScoreEntry.rot13(s2);
-        //System.out.println(s2);
-        assertEquals(s, s2);
-    }
+    public void testEncryptedSaveRestore() {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+           byte key[] = "A2k0nbaU7MruljxW".getBytes();
+           DESKeySpec desKeySpec = new DESKeySpec(key);
+           SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+           SecretKey skey = keyFactory.generateSecret(desKeySpec);
+
+           Cipher ecipher = Cipher.getInstance("DES");
+           ecipher.init(Cipher.ENCRYPT_MODE, skey);
+           
+           HighScoreEntry entry = new HighScoreEntry();
+           entry.date = new Date();
+           entry.level = MiinaEngine.Level.Beginner;
+           entry.time = 99;
+           entry.name = "teemu";
+                   
+           SealedObject so = new SealedObject(entry, ecipher);
+
+           ObjectOutputStream o = new ObjectOutputStream(out);
+           o.writeObject(so);
+           byte[] data = out.toByteArray();
+           o.close();
+           out.close();
+           
+           {
+               ByteArrayInputStream bis = new ByteArrayInputStream(data);
+               ObjectInputStream ois = new ObjectInputStream(bis);
+               Object object = ois.readObject();
+               SealedObject sealedObject = (SealedObject) object;
+               String algorithmName = sealedObject.getAlgorithm();
+               System.out.println("detected encryption algorithm: " 
+                       + algorithmName);
+               Cipher cipher = Cipher.getInstance(algorithmName);
+               cipher.init(Cipher.DECRYPT_MODE, skey);
+
+               HighScoreEntry loadedEntry = (HighScoreEntry) sealedObject.getObject(cipher);
+               
+               assertTrue( loadedEntry != null);
+               assertEquals( loadedEntry, entry );
+               
+               ois.close();
+               bis.close();
+   
+           }
+           
+        } 
+        catch ( Exception ex) {
+            System.err.println("fail:" + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+    
     @Override
     public String getNameForHighScore() {
         return "teemu";

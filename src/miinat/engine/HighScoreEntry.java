@@ -17,19 +17,18 @@ public class HighScoreEntry implements Externalizable {
 
     
     public HighScoreEntry() {
-        this.date = new Date();
     }
     
     public HighScoreEntry(MiinaEngine.Level l, int time, Date date, String name) {
         this.level = l;
         this.time = time;
-        this.date = date;
+        this.date = (Date)date.clone();
         this.name = name;
     }
     
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeBytes(this.rot13(this.toString()));
+        out.writeBytes(this.toString());
         
     }
 
@@ -41,7 +40,7 @@ public class HighScoreEntry implements Externalizable {
         while( (b = in.read()) != -1) {
             data += (char)b;
         }
-        this.fromString(this.rot13(data));
+        this.fromString(data);
     }
     
     
@@ -52,6 +51,20 @@ public class HighScoreEntry implements Externalizable {
         return s;
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+        HighScoreEntry other = (HighScoreEntry)o;
+        if(other == null)
+            return false;
+        return ( this.date.equals(other.date) &&
+                this.time == other.time &&
+                this.name.equals(other.name) &&
+                this.level == other.level );
+      
+    }
+    
     private void fromString(String data) {
         String tokens[] = data.split(",");
         this.level = MiinaEngine.Level.values()[Integer.parseInt(tokens[0])];
@@ -60,20 +73,6 @@ public class HighScoreEntry implements Externalizable {
         this.name = tokens[3];
     }
     
-    public static String rot13(String input) {
-        if(input == null)
-            return input;
-        String ret = "";
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if       (c >= 'a' && c <= 'm') c += 13;
-            else if  (c >= 'A' && c <= 'M') c += 13;
-            else if  (c >= 'n' && c <= 'z') c -= 13;
-            else if  (c >= 'N' && c <= 'Z') c -= 13;
-            ret += c;
-        }
-        return ret;
-    }
 
 }
 

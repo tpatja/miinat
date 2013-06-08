@@ -30,5 +30,7 @@ Pelaajan toiminnot:
 * high score seuranta
  * jos pelaaja saa koko ruudukon miinat paikannettua, tallennetaan pelaajan nimi, 
    vaikeustaso, pvm ja ratkomiseen käytetty aika
+ * high score tiedot tallennetaan tiedostoon salattuina, jottei niitä voi 
+   helposti väärentää
  * valikosta voi aukaista high score dialogin, josta näkee listan max 10:stä 
    parhaasta tuloksesta jokaiselle vaikeustasolle

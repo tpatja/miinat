@@ -24,3 +24,6 @@
   refaktorointia, lisää testejä, testien jako useampaan luokkaan, siivousta
 7.6.2013
 * 4h high score seurannan toteutus, UI parannuksia, testejä, javadoc etc
+8.6.2013
+* 2h DES salaus toteutettu high score talletukseen, aiheen päivitys, 
+  bugikorjausta, testejä
