@@ -1,5 +1,7 @@
 package miinat.ui;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.List;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -18,6 +20,7 @@ public class HighScoreDialog extends javax.swing.JFrame {
         this.highScoreManager = highScoreManager;
         initComponents();
         this.levelChoiceList.addListSelectionListener( new ListSelectionListener() {
+            
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting()) {
@@ -35,6 +38,24 @@ public class HighScoreDialog extends javax.swing.JFrame {
                 }
             }
         });
+        
+        this.levelChoiceList.addKeyListener( new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == e.VK_ESCAPE) {
+                    setVisible(false);
+                    dispose();
+                }
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+        this.levelChoiceList.setSelectedIndex(0);
     }
 
     private void updateScoreList(MiinaEngine.Level level) {
@@ -67,7 +88,7 @@ public class HighScoreDialog extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setAlwaysOnTop(true);
+        setFocusCycleRoot(false);
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         setResizable(false);
 
@@ -82,6 +103,8 @@ public class HighScoreDialog extends javax.swing.JFrame {
 
         textArea.setColumns(20);
         textArea.setRows(5);
+        textArea.setFocusable(false);
+        textArea.setRequestFocusEnabled(false);
         jScrollPane1.setViewportView(textArea);
 
         jLabel1.setText("High scores");
