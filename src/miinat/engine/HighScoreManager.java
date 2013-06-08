@@ -79,13 +79,14 @@ public class HighScoreManager implements IEngineObserver {
                 HighScoreEntry entry = loadSingleEntry(is);
                 if(entry == null)
                     break;
-                entries.add(entry);
+                this.insertEntry(entry);
             }
             is.close();
             in.close();
         }
         catch (Exception ex) {
-            System.err.println("loadEntries: " + ex.getMessage());
+            if(!(ex instanceof java.io.FileNotFoundException))
+                System.err.println("Failed to load entries: " + ex.getMessage());
         }
         finally {
             System.out.println("entries loaded");
@@ -133,7 +134,30 @@ public class HighScoreManager implements IEngineObserver {
         if(this.entries.isEmpty())
             return;
         
+        boolean backupOk = this.backupHighscoreFile();
         
+        try {
+            FileOutputStream fos = new FileOutputStream(this.FILENAME);
+            ObjectOutputStream ous = new ObjectOutputStream(fos);
+                
+            for(HighScoreEntry entry : this.entries) {
+                this.saveSingleEntry(entry, ous);
+            }
+            ous.close();
+            fos.close();
+        }
+        catch(IOException e) {
+            System.err.println("Failed to persist" + e.getMessage());
+            if(backupOk)
+                this.restoreBackedUpHighscoreFile();
+        }
+        finally {
+            if(backupOk) 
+                this.removeBackupFile();
+        }
+    }
+    
+    private boolean backupHighscoreFile() {
         boolean backupOk = false;
         try {
             File f = new File(this.FILENAME);
@@ -145,46 +169,29 @@ public class HighScoreManager implements IEngineObserver {
         finally {
             backupOk = true;
         }
-        
-        FileOutputStream fos = null;
-        ObjectOutputStream ous = null;
+        return backupOk;
+    }
+    
+    private void restoreBackedUpHighscoreFile() {
         try {
-            fos = new FileOutputStream(this.FILENAME);
-            ous = new ObjectOutputStream(fos);
-                
-            for(HighScoreEntry entry : this.entries) {
-                this.saveSingleEntry(entry, ous);
-            }
-            if(ous != null)
-                ous.close();
-            if(fos != null)
-                fos.close();
+            File f = new File(this.FILENAME + ".bak");
+            f.renameTo( new File(this.FILENAME ) );
         }
-        catch(IOException e) {
-            System.err.println("Failed to persist" + e.getMessage());
-            // roll back
-            try {
-                File f = new File(this.FILENAME + ".bak");
-                f.renameTo( new File(this.FILENAME ) );
-            }
-            catch(Exception e2) {
-                System.err.println(e2.getMessage());
-            }
-            finally {
-                System.out.println("Restored old entries");
-            }
+        catch(Exception e2) {
+            System.err.println(e2.getMessage());
         }
         finally {
-            System.out.println("entries saved");
-            if(backupOk) {
-                try {
-                    new File(this.FILENAME + ".bak").delete();
-                }
-                catch(Exception e) {
-                    System.err.println("Failed to remove backup file" +
-                            e.getMessage());    
-                }
-            }
+            System.out.println("Restored old entries");
+        }
+    }
+    
+    private void removeBackupFile() {
+        try {
+            new File(this.FILENAME + ".bak").delete();
+        }
+        catch(Exception e) {
+            System.err.println("Failed to remove backup file" +
+                    e.getMessage());    
         }
     }
     
