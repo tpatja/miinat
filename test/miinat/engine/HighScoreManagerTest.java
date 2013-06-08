@@ -20,7 +20,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 
-public class HighScoreManagerTest implements IHighScoreNameProvider {
+public class HighScoreManagerTest implements IHighScoreManagerAdapter {
     
     public HighScoreManagerTest() {
     }
@@ -218,4 +218,6 @@ public class HighScoreManagerTest implements IHighScoreNameProvider {
         return "teemu";
     }
     
+    @Override
+    public void highScoresChanged(){}
 }

@@ -36,19 +36,19 @@ public class HighScoreManager implements IEngineObserver {
     private SecretKey secretKey;
     
     private ArrayList<HighScoreEntry> entries;
-    private IHighScoreNameProvider nameProvider;
+    private IHighScoreManagerAdapter adapter;
     private boolean autoPersist;
     
     /**
      * Constructor
      * 
-     * @param nameProvider interface for getting name when gameWinningStats
+     * @param adapter interface for getting name when gameWinningStats
      *   gets called
      * @param autoPersist if true, entries are automatically loaded from disk 
      *  in constructor and saved to disk when created
      */
-    HighScoreManager(IHighScoreNameProvider nameProvider, boolean autoPersist) {
-        this.nameProvider = nameProvider;
+    HighScoreManager(IHighScoreManagerAdapter nameProvider, boolean autoPersist) {
+        this.adapter = nameProvider;
         
         try {
             DESKeySpec desKeySpec = new DESKeySpec(this.ENCRYPTION_KEY.getBytes());
@@ -254,11 +254,12 @@ public class HighScoreManager implements IEngineObserver {
             this.insertEntry( new HighScoreEntry(level,
                 seconds, 
                 new Date(), 
-                this.nameProvider.getNameForHighScore() ) );
+                this.adapter.getNameForHighScore() ) );
 
             if(this.autoPersist)
                 this.saveEntries();
-
+            
+            this.adapter.highScoresChanged();
         }
     }
     

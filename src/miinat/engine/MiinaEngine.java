@@ -49,7 +49,7 @@ public class MiinaEngine {
      * @param nameProvider interface for getting current player's name in
      *  case a new high score is detected
      */
-    public void initHighScoreManager(IHighScoreNameProvider nameProvider) {
+    public void initHighScoreManager(IHighScoreManagerAdapter nameProvider) {
         this.highScoreManager = new HighScoreManager(nameProvider, true);
         addObserver(this.highScoreManager);
     }

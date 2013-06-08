@@ -3,6 +3,7 @@ package miinat.ui;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
+import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import miinat.engine.HighScoreEntry;
@@ -17,6 +18,7 @@ public class HighScoreDialog extends javax.swing.JDialog {
     
     public HighScoreDialog(miinat.engine.HighScoreManager highScoreManager) {
         this.setTitle("Miinat high scores");
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.highScoreManager = highScoreManager;
         initComponents();
         this.levelChoiceList.addListSelectionListener( new ListSelectionListener() {
@@ -24,17 +26,7 @@ public class HighScoreDialog extends javax.swing.JDialog {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting()) {
-                    switch(levelChoiceList.getSelectedValue().toString()) {
-                        case "Beginner":
-                            updateScoreList(MiinaEngine.Level.Beginner);
-                            break;
-                        case "Intermediate":
-                            updateScoreList(MiinaEngine.Level.Intermediate);
-                            break;
-                        case "Advanced":
-                            updateScoreList(MiinaEngine.Level.Advanced);
-                            break;
-                    }
+                    updateHighScoreList();
                 }
             }
         });
@@ -47,8 +39,8 @@ public class HighScoreDialog extends javax.swing.JDialog {
             @Override
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == e.VK_ESCAPE) {
-                    setVisible(false);
-                    dispose();
+                    HighScoreDialog.this.setVisible(false);
+                    HighScoreDialog.this.dispose();
                 }
             }
             
@@ -75,6 +67,26 @@ public class HighScoreDialog extends javax.swing.JDialog {
                     ++i, entry.name, entry.time, entry.date.toLocaleString()));
         }
         
+    }
+    
+    private void updateHighScoreList() {
+        if(levelChoiceList.getSelectedValue() == null)
+            return;
+        switch(levelChoiceList.getSelectedValue().toString()) {
+            case "Beginner":
+                updateScoreList(MiinaEngine.Level.Beginner);
+                break;
+            case "Intermediate":
+                updateScoreList(MiinaEngine.Level.Intermediate);
+                break;
+            case "Advanced":
+                updateScoreList(MiinaEngine.Level.Advanced);
+                break;
+        }
+    }
+    
+    public void refresh() {
+        this.updateHighScoreList();
     }
     
     @SuppressWarnings("unchecked")

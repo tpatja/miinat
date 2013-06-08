@@ -17,7 +17,7 @@ extends
 implements
         MouseListener,
         miinat.engine.IEngineObserver,
-        miinat.engine.IHighScoreNameProvider {
+        miinat.engine.IHighScoreManagerAdapter {
 
     
     private class UiSquare {
@@ -50,7 +50,7 @@ implements
     private GameState gameState;
     private MiinaEngine.Level level;
     private Timer timeUpdater;
-    private JDialog highScoreDialog;
+    private HighScoreDialog highScoreDialog;
     
     public enum GameState {
         Initial,
@@ -198,6 +198,12 @@ implements
                 "You have made the high score list. Please enter your name");
     }
 
+    @Override
+    public void highScoresChanged() {
+        if(this.highScoreDialog != null) {
+            this.highScoreDialog.refresh();
+        }
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
