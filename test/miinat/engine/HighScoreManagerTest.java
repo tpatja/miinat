@@ -45,27 +45,27 @@ public class HighScoreManagerTest implements IHighScoreManagerAdapter {
     @Test
     public void testAllWinningStatsAreSaved() {
         HighScoreManager man = new HighScoreManager(this, false);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 5);
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 59);
+        man.gameWinningStats(GameLevel.Beginner, 10);
+        man.gameWinningStats(GameLevel.Beginner, 30);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 5);
+        man.gameWinningStats(GameLevel.Intermediate, 59);
 
-        assertTrue( man.getEntries(MiinaEngine.Level.Beginner).size() == 4 );
+        assertTrue( man.getEntries(GameLevel.Beginner).size() == 4 );
         
     }
     
     @Test
     public void testGetEntriesSortingIsCorrect() {
         HighScoreManager man = new HighScoreManager(this, false);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 5);
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 59);
+        man.gameWinningStats(GameLevel.Beginner, 10);
+        man.gameWinningStats(GameLevel.Beginner, 30);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 5);
+        man.gameWinningStats(GameLevel.Intermediate, 59);
 
         List<HighScoreEntry> entries = 
-                man.getEntries(MiinaEngine.Level.Beginner);
+                man.getEntries(GameLevel.Beginner);
         
         assertTrue( entries.get(0).time == 5 );
         assertTrue( entries.get(1).time == 10 );
@@ -77,48 +77,48 @@ public class HighScoreManagerTest implements IHighScoreManagerAdapter {
     @Test
     public void testOnlyMaxEntriesPerLevelGetSaved() {
         HighScoreManager man = new HighScoreManager(this, false);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 3245);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 45);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 55);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 25);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 75);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 52);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
+        man.gameWinningStats(GameLevel.Beginner, 10);
+        man.gameWinningStats(GameLevel.Beginner, 30);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 3245);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 45);
+        man.gameWinningStats(GameLevel.Beginner, 55);
+        man.gameWinningStats(GameLevel.Beginner, 25);
+        man.gameWinningStats(GameLevel.Beginner, 75);
+        man.gameWinningStats(GameLevel.Beginner, 85);
+        man.gameWinningStats(GameLevel.Beginner, 52);
+        man.gameWinningStats(GameLevel.Beginner, 85);
         
-        List<HighScoreEntry> entries = man.getEntries(MiinaEngine.Level.Beginner);
+        List<HighScoreEntry> entries = man.getEntries(GameLevel.Beginner);
         assertTrue( entries.size() == 10 );
     }
     
     @Test
     public void testBetterTimeDropsExistingWorstTimeWhenMaxEntriesIsReached() {
         HighScoreManager man = new HighScoreManager(this, false);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 3245);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 10);
+        man.gameWinningStats(GameLevel.Beginner, 30);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 3245);
+        man.gameWinningStats(GameLevel.Beginner, 15);
         
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 45);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 55);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 25);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 75);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
-        
-        
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 751);
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 791);
-        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
+        man.gameWinningStats(GameLevel.Beginner, 45);
+        man.gameWinningStats(GameLevel.Beginner, 55);
+        man.gameWinningStats(GameLevel.Beginner, 25);
+        man.gameWinningStats(GameLevel.Beginner, 75);
+        man.gameWinningStats(GameLevel.Beginner, 85);
         
         
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 52);
+        man.gameWinningStats(GameLevel.Intermediate, 751);
+        man.gameWinningStats(GameLevel.Intermediate, 791);
+        man.gameWinningStats(GameLevel.Advanced, 8544);
         
         
-        List<HighScoreEntry> entries = man.getEntries(MiinaEngine.Level.Beginner);
+        man.gameWinningStats(GameLevel.Beginner, 52);
+        
+        
+        List<HighScoreEntry> entries = man.getEntries(GameLevel.Beginner);
         boolean bigOneFound = false;
         for(HighScoreEntry entry : entries) {
             if(entry.time == 3245)
@@ -133,27 +133,27 @@ public class HighScoreManagerTest implements IHighScoreManagerAdapter {
         return; // this is just a tool to create some test data in miinat.dat
         /*
         HighScoreManager man = new HighScoreManager(this, true);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 10);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 30);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 3245);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 10);
+        man.gameWinningStats(GameLevel.Beginner, 30);
+        man.gameWinningStats(GameLevel.Beginner, 15);
+        man.gameWinningStats(GameLevel.Beginner, 3245);
+        man.gameWinningStats(GameLevel.Beginner, 15);
         
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 45);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 55);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 25);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 75);
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 85);
+        man.gameWinningStats(GameLevel.Beginner, 45);
+        man.gameWinningStats(GameLevel.Beginner, 55);
+        man.gameWinningStats(GameLevel.Beginner, 25);
+        man.gameWinningStats(GameLevel.Beginner, 75);
+        man.gameWinningStats(GameLevel.Beginner, 85);
         
         
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 751);
-        man.gameWinningStats(MiinaEngine.Level.Intermediate, 791);
-        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
+        man.gameWinningStats(GameLevel.Intermediate, 751);
+        man.gameWinningStats(GameLevel.Intermediate, 791);
+        man.gameWinningStats(GameLevel.Advanced, 8544);
         
-        man.gameWinningStats(MiinaEngine.Level.Advanced, 8544);
-        man.gameWinningStats(MiinaEngine.Level.Advanced, 98343);
+        man.gameWinningStats(GameLevel.Advanced, 8544);
+        man.gameWinningStats(GameLevel.Advanced, 98343);
         
-        man.gameWinningStats(MiinaEngine.Level.Beginner, 52);
+        man.gameWinningStats(GameLevel.Beginner, 52);
         */
         
     }
@@ -173,7 +173,7 @@ public class HighScoreManagerTest implements IHighScoreManagerAdapter {
            
            HighScoreEntry entry = new HighScoreEntry();
            entry.date = new Date();
-           entry.level = MiinaEngine.Level.Beginner;
+           entry.level = GameLevel.Beginner;
            entry.time = 99;
            entry.name = "teemu";
                    

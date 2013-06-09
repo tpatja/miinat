@@ -226,7 +226,7 @@ public class HighScoreManager implements IEngineObserver {
      * @param level level for which to get high score entries
      * @return sorted list of entries 
      */
-    public List<HighScoreEntry> getEntries(MiinaEngine.Level level)  {
+    public List<HighScoreEntry> getEntries(GameLevel level)  {
         List<HighScoreEntry> ret = new ArrayList<>();
         for(HighScoreEntry entry : this.entries) {
             if(entry.level == level)
@@ -247,7 +247,7 @@ public class HighScoreManager implements IEngineObserver {
     }
     
     @Override
-    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+    public void gameWinningStats(GameLevel level, int seconds) {
         
         if(this.makesHighScore(level, seconds)) {
             
@@ -295,7 +295,7 @@ public class HighScoreManager implements IEngineObserver {
      * @param seconds  given time
      * @return true if make high score list
      */
-    private boolean makesHighScore(MiinaEngine.Level level, int seconds) {
+    private boolean makesHighScore(GameLevel level, int seconds) {
         List<HighScoreEntry> levelEntries = getEntries(level);
         
         if(levelEntries.size() < this.MAX_ENTRIES_PER_LEVEL)

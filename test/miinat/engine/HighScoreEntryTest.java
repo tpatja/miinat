@@ -32,7 +32,7 @@ public class HighScoreEntryTest {
     @Test
     public void testCreate() {
         HighScoreEntry entry = new HighScoreEntry(
-                    MiinaEngine.Level.Beginner,
+                    GameLevel.Beginner,
                      99, new Date(), "teemu");
         assertTrue( entry != null);
         assertTrue( entry.name.equals("teemu") );
@@ -44,13 +44,13 @@ public class HighScoreEntryTest {
         Date d = new Date();
         
         HighScoreEntry entry = new HighScoreEntry();
-        entry.level = MiinaEngine.Level.Beginner;
+        entry.level = GameLevel.Beginner;
         entry.time = 99;
         entry.date = d;
         entry.name = "teemu";
         
         HighScoreEntry entry2 = new HighScoreEntry(
-                            MiinaEngine.Level.Beginner,
+                            GameLevel.Beginner,
                              99, d, "teemu");
                 
         assertEquals(entry, entry2);

@@ -7,7 +7,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import miinat.engine.HighScoreEntry;
-import miinat.engine.MiinaEngine;
+import miinat.engine.GameLevel;
 
 /**
  * Swing dialog for displaying high scores
@@ -16,11 +16,17 @@ public class HighScoreDialog extends javax.swing.JDialog {
 
     private miinat.engine.HighScoreManager highScoreManager;
     
-    public HighScoreDialog(miinat.engine.HighScoreManager highScoreManager) {
+    HighScoreDialog(miinat.engine.HighScoreManager highScoreManager) {
         this.setTitle("Miinat high scores");
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.highScoreManager = highScoreManager;
-        initComponents();
+        this.initComponents();
+        this.initListSelectionListener();
+        this.initKeyListener();
+        this.levelChoiceList.setSelectedIndex(0);
+    }
+
+    private void initListSelectionListener() {
         this.levelChoiceList.addListSelectionListener( new ListSelectionListener() {
             
             @Override
@@ -30,7 +36,9 @@ public class HighScoreDialog extends javax.swing.JDialog {
                 }
             }
         });
-        
+    }
+    
+    private void initKeyListener() {
         this.levelChoiceList.addKeyListener( new KeyListener() {
 
             @Override
@@ -47,10 +55,9 @@ public class HighScoreDialog extends javax.swing.JDialog {
             @Override
             public void keyReleased(KeyEvent e) {}
         });
-        this.levelChoiceList.setSelectedIndex(0);
     }
-
-    private void updateScoreList(MiinaEngine.Level level) {
+    
+    private void updateScoreList(GameLevel level) {
         List<HighScoreEntry> entries = this.highScoreManager.getEntries(level);
         if(entries.isEmpty()) {
             this.textArea.setText("No entries!");
@@ -74,13 +81,13 @@ public class HighScoreDialog extends javax.swing.JDialog {
             return;
         switch(levelChoiceList.getSelectedValue().toString()) {
             case "Beginner":
-                updateScoreList(MiinaEngine.Level.Beginner);
+                updateScoreList(GameLevel.Beginner);
                 break;
             case "Intermediate":
-                updateScoreList(MiinaEngine.Level.Intermediate);
+                updateScoreList(GameLevel.Intermediate);
                 break;
             case "Advanced":
-                updateScoreList(MiinaEngine.Level.Advanced);
+                updateScoreList(GameLevel.Advanced);
                 break;
         }
     }

@@ -16,7 +16,7 @@ public class MiinaEngineTest implements IEngineObserver {
 
     private MiinaEngine engine;
     
-    private final MiinaEngine.Level LEVEL = MiinaEngine.Level.Beginner; 
+    private final GameLevel LEVEL = GameLevel.Beginner; 
     
     // these correspond to beginner level
     private final int WIDTH  = 9;
@@ -28,7 +28,7 @@ public class MiinaEngineTest implements IEngineObserver {
     private boolean gameOverParamValue;
     private boolean gameWinningStatsCalled;
     private int gameWinningStatsSecondsParam;
-    private MiinaEngine.Level gameWinningStatsLevelParamValue;
+    private GameLevel gameWinningStatsLevelParamValue;
 
     
     public MiinaEngineTest() {
@@ -49,7 +49,7 @@ public class MiinaEngineTest implements IEngineObserver {
     }
     
     @Override
-    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+    public void gameWinningStats(GameLevel level, int seconds) {
         System.out.println("gameWinningStats: level=" + level + ",seconds=" + seconds);
         this.gameWinningStatsCalled = true;
         this.gameWinningStatsSecondsParam = seconds;
@@ -72,7 +72,7 @@ public class MiinaEngineTest implements IEngineObserver {
         this.gameOverParamValue = false;
         this.gameWinningStatsCalled = false;
         this.gameWinningStatsSecondsParam = -1;
-        this.gameWinningStatsLevelParamValue = MiinaEngine.Level.Beginner;
+        this.gameWinningStatsLevelParamValue = GameLevel.Beginner;
     }
     
     @After

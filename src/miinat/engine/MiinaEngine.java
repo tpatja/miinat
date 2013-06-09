@@ -16,7 +16,7 @@ public class MiinaEngine {
     private ArrayList<IEngineObserver> observers;
     private ArrayList<Square> squares;
     private Date gameStarted;
-    private Level level;
+    private GameLevel level;
     private HighScoreManager highScoreManager;
     
     
@@ -69,7 +69,7 @@ public class MiinaEngine {
         this.width = width;
         this.height = height;
         this.nMines = nMines;
-        this.level = Level.Custom;
+        this.level = GameLevel.Custom;
         this.initState();
         this.randomlyPlaceMines();
         this.notifyGameStarted();
@@ -77,10 +77,10 @@ public class MiinaEngine {
 
     /** (Re)Start game with given level
      * 
-     * @param l Level describing amount of mines, width and height
+     * @param l GameLevel describing amount of mines, width and height
      */
-    public void startGame(Level l) {
-        assert(l != Level.Custom); // custom is a pseudo level
+    public void startGame(GameLevel l) {
+        assert(l != GameLevel.Custom); // custom is a pseudo level
         this.setLevelParams(l);
         this.initState();
         this.randomlyPlaceMines();
@@ -101,7 +101,7 @@ public class MiinaEngine {
         this.width = width;
         this.height = height;
         this.nMines = nMines;
-        this.level = Level.Custom;
+        this.level = GameLevel.Custom;
         this.initState();
         this.setMinesFromString(mineData);
         this.notifyGameStarted();
@@ -117,7 +117,7 @@ public class MiinaEngine {
      *         
      * @param mineData 
      */
-    public void startGame(Level level, String mineData) {
+    public void startGame(GameLevel level, String mineData) {
         this.setLevelParams(level);
         this.initState();
         this.setMinesFromString(mineData);
@@ -189,22 +189,13 @@ public class MiinaEngine {
         return this.squares.get(idx);
     }
         
-    /**
-     * Pre-defined levels that define width, height and mine count
-     */
-    public enum Level {
-        Beginner,
-        Intermediate,
-        Advanced,
-        Custom
-    }
     
     /**
      * Set width, height and mine count based on given level
      * @param l given level
      */
-    private void setLevelParams(Level l) {
-        assert l != Level.Custom;
+    private void setLevelParams(GameLevel l) {
+        assert l != GameLevel.Custom;
         switch(l) {
             case Beginner:
                 this.width = 9;
@@ -286,7 +277,7 @@ public class MiinaEngine {
         }
     }
     
-    private void notifyGameWinningStats(MiinaEngine.Level level, int seconds) {
+    private void notifyGameWinningStats(GameLevel level, int seconds) {
         for(IEngineObserver observer : this.observers) {
             observer.gameWinningStats(level, seconds);
         }
@@ -294,7 +285,7 @@ public class MiinaEngine {
     
     private void handleWin() {
         this.notifyGameOver(true);
-        if(this.level != Level.Custom) {
+        if(this.level != GameLevel.Custom) {
             this.notifyGameWinningStats(this.level, this.timeElapsedInSeconds());
         }
         this.gameOver = true;
@@ -380,7 +371,7 @@ public class MiinaEngine {
      *        '#' -> covered
      *        'X' -> mine
      *        '_' -> empty
-     *        '<number>' -> empty with n surrounding mines
+     *        '<number>' -> uncovered empty square with n surrounding mines
      * 
      * @return String containing representation of the grid data
      */

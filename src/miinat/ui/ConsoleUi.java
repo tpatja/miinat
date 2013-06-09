@@ -1,6 +1,7 @@
 package miinat.ui;
 
 import miinat.engine.MiinaEngine;
+import miinat.engine.GameLevel;
 import miinat.engine.IEngineObserver;
 
 import java.util.Scanner;
@@ -12,20 +13,12 @@ import java.util.Scanner;
 public class ConsoleUi implements IEngineObserver {
     
     private MiinaEngine engine;
-
-    
-    private enum GameState {
-        Initial,
-        Playing,
-        GameWon,
-        GameLost
-    }
     private GameState state;
         
     public ConsoleUi() {
         this.state = GameState.Initial;
         this.engine = new MiinaEngine(this);
-        this.engine.startGame(MiinaEngine.Level.Beginner);
+        this.engine.startGame(GameLevel.Beginner);
     }
     
     public void startGame() {
@@ -44,7 +37,7 @@ public class ConsoleUi implements IEngineObserver {
     }
     
     @Override
-    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+    public void gameWinningStats(GameLevel level, int seconds) {
         System.out.println("game won in " + seconds + " seconds");
     }
     
@@ -88,19 +81,22 @@ public class ConsoleUi implements IEngineObserver {
             if(input.matches("[0-9]+,[0-9]+")) {
                 int x = Integer.parseInt(input.split(",")[0]);
                 int y = Integer.parseInt(input.split(",")[1]);
-                System.out.println("uncovering x=" + x + ",y=" + y);
-                engine.uncoverSquare(x, y);
-                if(!engine.isGameOver()) {
-                    update();
+                if(x >= 0 && x < engine.getWidth() &&
+                   y >= 0 && y < engine.getHeight() ) {
+                    System.out.println("uncovering x=" + x + ",y=" + y);
+                    engine.uncoverSquare(x, y);
+                    if(!engine.isGameOver()) {
+                        update();
+                    }
+                    break;
                 }
-                break;
             }
             else if(input.startsWith("q")) {
                 System.exit(0);
             }
-            else {
-                System.out.println("format=x,y, q to quit");
-            }
+            System.out.println("format=x,y\n"
+                    + "q to quit\n"
+                    + "coordinates are 0 based and must be on the board");
         }
     }
     

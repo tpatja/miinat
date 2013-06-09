@@ -21,6 +21,6 @@ public interface IEngineObserver {
      * @param level   Played level
      * @param seconds Time used in seconds
      */
-    void gameWinningStats(MiinaEngine.Level level, int seconds);
+    void gameWinningStats(GameLevel level, int seconds);
     
 }

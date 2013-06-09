@@ -7,10 +7,13 @@ import java.io.ObjectOutput;
 import java.util.Date;
 
 /**
- * High score entry data class
+ * A data class representing one high score entry.
+ * 
+ * Supports serialization and by-value equality checking.
+ * 
  */
 public class HighScoreEntry implements Externalizable {
-    public MiinaEngine.Level level;
+    public GameLevel level;
     public int time;
     public Date date;
     public String name;
@@ -19,7 +22,7 @@ public class HighScoreEntry implements Externalizable {
     public HighScoreEntry() {
     }
     
-    public HighScoreEntry(MiinaEngine.Level l, int time, Date date, String name) {
+    public HighScoreEntry(GameLevel l, int time, Date date, String name) {
         this.level = l;
         this.time = time;
         this.date = (Date)date.clone();
@@ -67,7 +70,7 @@ public class HighScoreEntry implements Externalizable {
     
     private void fromString(String data) {
         String tokens[] = data.split(",");
-        this.level = MiinaEngine.Level.values()[Integer.parseInt(tokens[0])];
+        this.level = GameLevel.values()[Integer.parseInt(tokens[0])];
         this.time = Integer.parseInt(tokens[1]);
         this.date = new Date( Long.parseLong(tokens[2]) );
         this.name = tokens[3];

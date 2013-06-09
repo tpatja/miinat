@@ -18,8 +18,11 @@ implements
         MouseListener,
         miinat.engine.IEngineObserver,
         miinat.engine.IHighScoreManagerAdapter {
-
     
+    /**
+     * Internally used container class containing a Square and JLabel for 
+     * displaying it.
+     */
     private class UiSquare {
         
         private JLabel label;
@@ -48,29 +51,22 @@ implements
     private MiinaEngine engine;
     private UiSquare[][] squares;
     private GameState gameState;
-    private MiinaEngine.Level level;
+    private GameLevel level;
     private Timer timeUpdater;
     private HighScoreDialog highScoreDialog;
-    
-    public enum GameState {
-        Initial,
-        GameRunning,
-        GameWon,
-        GameLost
-    }
     
     /**
      * Creates new form GUI
      */
     public GUI() {
         super("Miinat");
-        initComponents();
-        // disable user resizing so grid will always be visible
+        this.initComponents();
+        // disable user resizing to prevent game grid looking distorted
         this.setResizable(false); 
         engine = new MiinaEngine(this);
         engine.initHighScoreManager(this);
         this.gameState = GameState.Initial;
-        this.level = MiinaEngine.Level.Beginner;
+        this.level = GameLevel.Beginner;
         this.engine.startGame(this.level);
     }
 
@@ -80,6 +76,26 @@ implements
      */
     private void initUi() {
                 
+        boolean isReinit = this.initUiSquares();
+        this.resizeAccordingToGameDimensions();
+        
+        if(isReinit) {
+            // java "feature". needed if you dynamically add+remove components
+            this.getContentPane().invalidate();
+            this.getContentPane().validate();
+        }
+        GridLayout gridLayout = new GridLayout(engine.getHeight(), engine.getWidth());
+        this.gridPanel.setLayout(gridLayout);
+        gridLayout.addLayoutComponent(null, this);
+        
+    }
+ 
+    /**
+     * Remove possibly existing UI square labels, create 2-dimensional array
+     * for UI square objects
+     * @return true in case we are re-initializing (not 1st call)
+     */
+    private boolean initUiSquares() {
         boolean isReinit = false;
         if(this.squares != null) {
             isReinit = true;
@@ -92,14 +108,15 @@ implements
         
         this.squares = null;
         this.squares = new UiSquare[engine.getWidth()][engine.getHeight()];
-        
-        final int gapSpace = 10;
-        final int squareSide = 20;
-        int w = engine.getWidth()*squareSide + gapSpace;
-        int h = engine.getHeight()*squareSide + gapSpace 
-                + this.getJMenuBar().getHeight() +
-                  this.topPanel.getHeight();
-        setSize(w, h);
+        this.createUiSquares();
+        return isReinit;
+    }
+    
+    
+    /**
+     * Create UiSquare objects 
+     */
+    private void createUiSquares() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 JLabel label = new JLabel();
@@ -112,48 +129,49 @@ implements
                 this.gridPanel.add(label);
             }
         }
-        
-        if(isReinit) {
-            // java "feature". needed if you dynamically add+remove components
-            this.getContentPane().invalidate();
-            this.getContentPane().validate();
-        }
-        GridLayout gridLayout = new GridLayout(engine.getHeight(), engine.getWidth());
-        this.gridPanel.setLayout(gridLayout);
-        gridLayout.addLayoutComponent(null, this);
-        
+    }
+    
+    
+    /**
+     * Dynamically resize main window according to game grid dimensions
+     */
+    private void resizeAccordingToGameDimensions() {
+        final int gapSpace = 10;
+        final int squareSide = 20;
+        int w = engine.getWidth()*squareSide + gapSpace;
+        int h = engine.getHeight()*squareSide + gapSpace 
+                + this.getJMenuBar().getHeight() +
+                  this.topPanel.getHeight();
+        this.setSize(w, h);
     }
     
     private void updateUi() {
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 UiSquare s = this.squares[x][y];
-                if(s.square.isCovered()) {
-                    if(s.square.isFlagged)
-                        s.label.setBackground(Color.YELLOW);
-                    else
-                        s.label.setBackground(Color.GRAY);
-                    s.label.setText("");
-                }
-                else {
-                    if(s.square.hasMine) {
-                        s.label.setBackground(Color.RED);
-                    }
-                    else {
-                        if (s.square.surroundingMines > 0)
-                            s.label.setText(Integer.toString(s.square.surroundingMines));
-                        s.label.setBackground(Color.WHITE);
-                    }
-                }
+                s.label.setBackground( this.getColorForSquare(s.square) );
+                s.label.setText( this.getTextForSquare(s.square) );
             }
         }
         this.gridPanel.repaint();
     }
     
+    private Color getColorForSquare(Square square) {
+        if(square.isCovered())
+            return (square.isFlagged) ? Color.YELLOW : Color.GRAY;
+        return (square.hasMine) ? Color.RED : Color.WHITE;
+    }
+    
+    private String getTextForSquare(Square square) {
+        if(!square.isCovered() && square.surroundingMines > 0 )
+            return Integer.toString(square.surroundingMines);
+        return "";
+    }
+    
     @Override
     public void gameStarted() {
-        initUi();
-        this.gameState = GameState.GameRunning;
+        this.initUi();
+        this.gameState = GameState.Playing;
         for(int y=0; y<engine.getHeight(); ++y) {
             for(int x=0; x<engine.getWidth(); ++x) {
                 this.squares[x][y].square = engine.squareAt(x, y);
@@ -170,8 +188,7 @@ implements
             }
         });
         this.timeUpdater.start();
-        
-        updateUi();
+        this.updateUi();
     }
     
     @Override
@@ -188,7 +205,7 @@ implements
     }
     
     @Override
-    public void gameWinningStats(MiinaEngine.Level level, int seconds) {
+    public void gameWinningStats(GameLevel level, int seconds) {
         System.out.println("game won in " + seconds + " seconds");
     }
     
@@ -374,17 +391,17 @@ implements
     }//GEN-LAST:event_exitActionPerformed
 
     private void beginnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_beginnerActionPerformed
-        this.level = MiinaEngine.Level.Beginner;
+        this.level = GameLevel.Beginner;
         this.engine.startGame(this.level);
     }//GEN-LAST:event_beginnerActionPerformed
 
     private void intermediateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intermediateActionPerformed
-        this.level = MiinaEngine.Level.Intermediate;
+        this.level = GameLevel.Intermediate;
         this.engine.startGame(this.level);
     }//GEN-LAST:event_intermediateActionPerformed
 
     private void advancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedActionPerformed
-        this.level = MiinaEngine.Level.Advanced;
+        this.level = GameLevel.Advanced;
         this.engine.startGame(this.level);
     }//GEN-LAST:event_advancedActionPerformed
 
@@ -432,8 +449,6 @@ implements
         }
         //</editor-fold>
 
-        
-        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -446,7 +461,7 @@ implements
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(this.gameState != GameState.GameRunning)
+        if(this.gameState != GameState.Playing)
             return;
         
         Square sq = this.uiSquareByMouseEventSource( e.getSource() ).square;
@@ -468,22 +483,17 @@ implements
             }
         }
        return null;
-
     }
     
     @Override
-    public void mousePressed(MouseEvent e) {
-        
-        
-    }
+    public void mousePressed(MouseEvent e) {}
     @Override
-    public void mouseReleased(MouseEvent e) {
-        
-    }
+    public void mouseReleased(MouseEvent e) {}
+    
     @Override
     public void mouseEntered(MouseEvent e) {
         
-        if(this.gameState != GameState.GameRunning) 
+        if(this.gameState != GameState.Playing) 
             return;
         
         UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
@@ -494,7 +504,7 @@ implements
     @Override
     public void mouseExited(MouseEvent e) {
         
-        if(this.gameState != GameState.GameRunning) 
+        if(this.gameState != GameState.Playing) 
             return;
         UiSquare us = this.uiSquareByMouseEventSource(e.getSource());
         if(us.getSquare().isCovered() && !us.getSquare().isFlagged) {
