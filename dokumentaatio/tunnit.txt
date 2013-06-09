@@ -27,3 +27,5 @@
 8.6.2013
 * 2h DES salaus toteutettu high score talletukseen, aiheen päivitys, 
   bugikorjausta, testejä
+9.6.2013
+* 1h refaktorointia, javadoc
