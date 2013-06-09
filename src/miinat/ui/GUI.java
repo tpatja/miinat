@@ -163,7 +163,7 @@ implements
     }
     
     private String getTextForSquare(Square square) {
-        if(!square.isCovered() && square.surroundingMines > 0 )
+        if(!square.isCovered() && !square.hasMine && square.surroundingMines > 0)
             return Integer.toString(square.surroundingMines);
         return "";
     }
