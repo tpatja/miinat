@@ -54,6 +54,8 @@ implements
     private GameLevel level;
     private Timer timeUpdater;
     private HighScoreDialog highScoreDialog;
+    private int squareSideInPixels;
+    private final int DEFAULT_SQUARE_SIDE = 25;
     
     /**
      * Creates new form GUI
@@ -62,7 +64,9 @@ implements
         super("Miinat");
         this.initComponents();
         // disable user resizing to prevent game grid looking distorted
-        this.setResizable(false); 
+        this.squareSideInPixels = DEFAULT_SQUARE_SIDE;
+        this.setResizable(false);
+        this.initKeyListener();
         engine = new MiinaEngine(this);
         engine.initHighScoreManager(this);
         this.gameState = GameState.Initial;
@@ -121,7 +125,8 @@ implements
             for(int x=0; x<engine.getWidth(); ++x) {
                 JLabel label = new JLabel();
                 label.setOpaque(true);
-                label.setSize(20,20);
+                label.setSize(this.squareSideInPixels, this.squareSideInPixels);
+                label.setHorizontalAlignment( SwingConstants.CENTER );
                 label.setBackground(Color.GRAY);
                 label.setBorder( BorderFactory.createLineBorder(Color.BLACK) );
                 label.addMouseListener(this);
@@ -136,10 +141,8 @@ implements
      * Dynamically resize main window according to game grid dimensions
      */
     private void resizeAccordingToGameDimensions() {
-        final int gapSpace = 10;
-        final int squareSide = 20;
-        int w = engine.getWidth()*squareSide + gapSpace;
-        int h = engine.getHeight()*squareSide + gapSpace 
+        int w = engine.getWidth()*this.squareSideInPixels + engine.getWidth();
+        int h = engine.getHeight()*this.squareSideInPixels + engine.getHeight() 
                 + this.getJMenuBar().getHeight() +
                   this.topPanel.getHeight();
         this.setSize(w, h);
@@ -219,6 +222,47 @@ implements
     public void highScoresChanged() {
         if(this.highScoreDialog != null) {
             this.highScoreDialog.refresh();
+        }
+    }
+    
+    
+    private void initKeyListener() {
+        this.topButton.addKeyListener( new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if((e.getModifiers() & KeyEvent.CTRL_MASK) != 0) {
+                    if(e.getKeyCode() == KeyEvent.VK_PLUS) {
+                        scaleUi(1);
+                    }
+                    else if(e.getKeyCode() == KeyEvent.VK_MINUS) {
+                        scaleUi(-1);
+                    }
+                    else if(e.getKeyCode() == KeyEvent.VK_0) {
+                        squareSideInPixels += DEFAULT_SQUARE_SIDE;
+                        initUi();
+                        updateUi();
+                    }
+                }
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+    }
+    
+    private void scaleUi(int step) {
+        if(step < 0 && this.squareSideInPixels <= 20)
+            System.out.println("not scaling down further");
+        else if(step > 0 && this.squareSideInPixels >= 50)
+            System.out.println("not scaling up further");
+        else {
+            this.squareSideInPixels += step;
+            initUi();
+            updateUi();
         }
     }
     
