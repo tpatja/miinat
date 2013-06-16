@@ -1,0 +1,17 @@
+Käyttöohje
+
+Tämän minesweeper klooni toimii käyttäjän kannalta identtisesti perinteisen 
+windowsin mukana tulevan version kanssa.
+
+Ruutu avataan hiiren vasemmalla napilla. Ruutu merkataan miinaksi (ja 
+poistetaan merkintä) hiiren oikealla napilla.
+
+Vaikeustasoa vaihdetaan File valikosta. Help -> High scores näyttää parhaimmat 
+tulokset. Help -> About näyttää tekijän tiedot.
+
+Hymynaamanapista painamalla alkaa uusi peli sen hetkisellä vaikeustasolla. 
+Napin hymynaama myös indokoi pelin tilaa (surullinen naama hävityssä tilassa
+jne).
+
+Control-+ skaalaa käyttöliittymää suuremmaksi, Control-- skaalaa pienemmäksi. 
+Control-0 palauttaa oletusskaalauksen.

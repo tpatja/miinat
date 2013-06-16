@@ -1,0 +1,23 @@
+Miinaharavaohjelman rakenne
+
+Pelilogiikka ja kaikki pelin sellainen "äly", joka ei ole käyttöliittymän 
+kanssa tekemisissä on paketissa miinat.engine.
+
+MiinaEngine toteuttaa pelilogiikan. Sen tapahtumsta saa notifikaatiot 
+IEngineObserver rajapinnan kautta. Peli aloitetaan MiinaEngine.startGame
+metodilla joka ottaa joko pelilaudan dimensiot ja miinojen määrän paremetrina
+tai vaikeustason (GameLevel).
+
+HighScoreManager kuuntelee MiinaEnginen eventtejä ja itsenäisesti
+kantaa vastuun pelituloksista. Se on enginen sisäinen osa, eikä näy paketin 
+ulkopuolelle. Se osaa järjestää (HighScoreEntryComparator luokan avulla) 
+tulokset, ja tallentaa ne salattuina tiedostoon. Tarvittaessa 
+HighScoreManager pyytää IHighScoreManagerAdapter rajapinnan kautta käyttäjän
+nimen uutta listalle pääsevää tulosta varten. Käyttöliittymä antaa ko rajapinnan
+toteuttavan olion enginen kautta initHighScoreManager() metodilla.
+
+Käyttöliittymään liittyvä koodi on paketissa miinat.ui. ConsoleUi on yksinkertainen
+konsolikäyttöliittymä, joka tehtiin kehityksen alkuvaiheessa. Se ei toteuta
+pelin kaikkia toimintoja. GUI luokka on graafisen käyttöliittymän toteutus, 
+joka on tehty Swingillä ja se toteuttaa pelin koko käyttäjälle näkyvän 
+toiminnallisuuden. HighScoreDialog on swing dialog ennätysten näyttämistä varten.

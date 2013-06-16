@@ -29,3 +29,7 @@
   bugikorjausta, testejä
 9.6.2013
 * 1h refaktorointia, javadoc
+5.6.2013
+* 2h demo
+16.6.2013
+* 2h dokumentointia, loppuunsaattaminen
